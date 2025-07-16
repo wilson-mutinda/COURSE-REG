@@ -1,0 +1,13 @@
+
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  username: <%= ENV['DBASE_NAME'] %>
+  password: <%= ENV['DBASE_PASSWORD'] %>
+  host: localhost
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+development:
+  <<: *default
+  database: COURSE-REG
+
