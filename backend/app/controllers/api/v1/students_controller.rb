@@ -100,7 +100,8 @@ class Api::V1::StudentsController < ApplicationController
         email: email_param,
         phone: phone_param,
         password: password_param,
-        password_confirmation: password_confirmation_param
+        password_confirmation: password_confirmation_param,
+        flag: 'student'
       )
       if created_user
         # create_student
@@ -300,7 +301,7 @@ class Api::V1::StudentsController < ApplicationController
   # privately hold user_params and student_params
   private
   def user_params
-    params.require(:user).permit(:email, :phone, :password, :password_confirmation)
+    params.require(:user).permit(:email, :phone, :password, :password_confirmation, :flag)
   end
 
   def student_params

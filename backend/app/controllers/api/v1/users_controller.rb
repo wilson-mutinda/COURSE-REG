@@ -95,6 +95,31 @@ class Api::V1::UsersController < ApplicationController
     end    
   end
 
+  # update_user
+  def update_user
+    begin
+      user = User.find_by(id: params[:id])
+      if user
+        # user_flag
+        user_flag = user_params[:flag].to_s
+        if user_flag.present?
+          user_flag = user_flag.to_s.gsub(/\s+/, '').downcase
+        end
+
+        # update_user
+        if user.update(flag: user_flag)
+          render json: { message: "User updated"}, status: :ok
+        else
+          render json: { error: "Error updating user", info: user.errors.full_messages }, status: :unprocessable_entity
+        end
+      else
+        render json: { error: "User not found!"}, status: :not_found
+      end
+    rescue => e
+      render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
+    end
+  end
+
   # user_login
   def user_login
     begin
@@ -228,7 +253,7 @@ class Api::V1::UsersController < ApplicationController
 
   # user_params
   def user_params
-    params.require(:user).permit(:email, :phone, :password, :password_confirmation)
+    params.require(:user).permit(:email, :phone, :password, :password_confirmation, :flag)
   end
 
 end

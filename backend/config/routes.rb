@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       # users
       post 'create_user/', to: 'users#create_user'
+      patch 'update_user/:id/', to: 'users#update_user'
 
       # user_login
       post 'user_login/', to: 'users#user_login'
