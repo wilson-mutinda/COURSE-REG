@@ -7,6 +7,14 @@
         <h3 class="text-white font-semibold">Check email to reset password</h3>
      </div>
 
+     <!-- login toast -->
+      <div v-if="showLoginToast" class="bg-green-400 rounded-md fixed p-2 top-5 z-50 flex items-center justify-center gap-3 right-3">
+        <button @click="returnToLogin" type="button">
+            <img src="/close.png" alt="close" width="14px">
+        </button>
+        <h3 class="text-white font-semibold">Login Successful</h3>
+      </div>
+
     <div class="form-template bg-gray-600 flex min-h-screen items-center justify-center p-2">
         <div class="login-form bg-white w-full max-w-md rounded-md p-4">
             <form @submit.prevent="userLogin" action="">
@@ -95,7 +103,6 @@ import api from '@/sevices/api';
 
 export default{
     methods: {
-
         // googleAuth
         googleAuth(){
             window.location.href = 'http://localhost:3000/auth/google_oauth2'
@@ -168,11 +175,14 @@ export default{
             }
             try {
                 const response = await api.post('user_login', payload)
-                // setTimeout(() => {
-                //     this.loading = true
-                // }, 5000);
                 this.clearForm();
-                this.errors = {}
+                this.errors = {};
+                this.showLoginToast = true;
+
+                setTimeout(() => {
+                    this.showLoginToast = false
+                    this.$router.push('/dashboard')
+                }, 3000);
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.errors) {
                     this.errors = error.response.data.errors
@@ -203,6 +213,8 @@ export default{
             resetErrors: {},
 
             showToast: false,
+
+            showLoginToast: false,
 
             loading: false
         }
