@@ -1,8 +1,7 @@
 class Api::V1::CoursesController < ApplicationController
 
-  before_action :get_user_id
-  before_action :authorize_admin, except: [:all_courses, :single_course]
-  before_action :authorize_admin_or_student, only: [:single_course, :all_courses]
+  before_action :get_user_id, only: [:create_course, :update_course, :delete_course]
+  before_action :authorize_admin, only: [:create_course, :update_course, :delete_course]
 
   # create_course
   def create_course
