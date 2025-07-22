@@ -131,13 +131,14 @@ class Api::V1::UsersController < ApplicationController
       if user
         auth = user.authenticate(password_param)
         if auth
-          access_token=JsonWebToken.encode(user.id, 30.minutes.from_now)
-          refresh_token=JsonWebToken.encode(user.id, 24.hours.from_now)
+          access_token=JsonWebToken.encode(user.id, user.flag, 30.minutes.from_now)
+          refresh_token=JsonWebToken.encode(user.id, user.flag, 24.hours.from_now)
           UserMailer.welcome_email(user).deliver_now
           render json: { 
             message: "Login Successful",
             access_token: access_token,
-            refresh_token: refresh_token
+            refresh_token: refresh_token,
+            flag: user.flag
           }, status: :ok
         else
           render json: { errors: { password: "Invalid Password!"}}, status: :unauthorized
@@ -158,8 +159,11 @@ class Api::V1::UsersController < ApplicationController
         refresh_token = header.split(' ').last
         decoded_token = JsonWebToken.decode(refresh_token)
         user_id = decoded_token['user_id']
+        flag = decoded_token['flag']
         new_acceess_token = JsonWebToken.encode(user_id, 30.minutes.from_now)
         render json: {
+          id: user_id,
+          flag: flag,
           new_access_token: new_acceess_token
         }, status: :ok
       else

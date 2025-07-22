@@ -5,15 +5,16 @@ SECRET_KEY = ENV['SECRET_KEY']
 
 class JsonWebToken
   # encode jwt token with user_id and exp duration
-  def self.encode(user_id, exp = 30.minutes.from_now)
+  def self.encode(user_id, flag, exp = 30.minutes.from_now)
     payload = {
       user_id: user_id,
+      flag: flag,
       exp: exp.to_i
     }
     JWT.encode(payload, SECRET_KEY)
   end
 
-  # decode token to get user_id
+  # decode token to get user_id and flag
   def self.decode(token)
     decoded_token = JWT.decode(token, SECRET_KEY)[0]
     HashWithIndifferentAccess.new(decoded_token)

@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   has_one :student
 
+  has_many :courses
+
   has_secure_password
 
   # validations
