@@ -13,7 +13,7 @@ class Api::V1::CoursesController < ApplicationController
         render json: { errors: { name: "Name cannot be blank!"}}, status: :unprocessable_entity
         return
       else
-        name_param = name_param.to_s.gsub(/\s+/, '').capitalize
+        name_param = name_param.to_s.strip.titleize
       end
 
       # create_course
@@ -78,7 +78,7 @@ class Api::V1::CoursesController < ApplicationController
         # name_param
         name_param = course_params[:name].to_s.gsub(/\s+/, '').downcase
         if name_param.present?
-          name_param = name_param.to_s.gsub(/\s+/, '').capitalize
+          name_param = name_param.to_s.strip.titleize
         end
         # update_course
         updated_course = course.update(
