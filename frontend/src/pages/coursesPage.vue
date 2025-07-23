@@ -1,7 +1,7 @@
 <template>
     <div class="course-page bg-gray-300 min-h-screen">
         <!-- header -->
-         <div class="bg-white p-5 flex items-center justify-between">
+         <div class="bg-white p-5 flex items-center justify-between fixed top-0 left-0 right-0 z-50 shadow-md">
             <!-- logo -->
              <div class="flex gap-3">
                 <img src="/book.png" alt="book" width="20px" height="20px">
@@ -144,7 +144,20 @@
                   <div class="w-[84%]">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         <div v-for="(course, index) in threeCourses" :key="index" class="rounded-md bg-white p-4 shadow-md text-lg text-blue-900">
-                            {{ course.name }}
+                            <p class="ml-6 font-bold">{{ course.name }}</p>
+
+                            <!-- duration -->
+                             <div class="flex gap-4 mt-6 mb-6">
+                                <img src="/hour.png" alt="hour" width="25px">
+                                <p>{{ course.duration }}</p>
+                             </div>
+
+                            <!-- Apply now button -->
+                            <div class="ml-6">
+                                <button type="button" @click="goToRegister" class="bg-green-400 mt-6 px-6 py-2 text-black rounded-xl hover:bg-blue-900 hover:text-white">
+                                    Apply Now
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -209,6 +222,11 @@ export default {
     },
 
     methods: {
+
+        // goToRegister
+        goToRegister(){
+            this.$router.push('/create-account')
+        },
 
         // showMoreCourses
         showMoreCourses(){
