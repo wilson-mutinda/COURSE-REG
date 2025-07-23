@@ -14,11 +14,20 @@ class Api::V1::CoursesController < ApplicationController
       else
         name_param = name_param.to_s.strip.titleize
       end
+      # category_param
+      category_param = course_params[:category].to_s
+      if category_param.blank?
+        render json: { errors: { category: "Category needed!"}}, status: :unprocessable_entity
+        return
+      else
+        category_param = category_param.to_s.strip.titleize
+      end
 
       # create_course
       created_course = Course.create(
         user_id: @current_user_id,
-        name: name_param
+        name: name_param,
+        category: category_param
       )
       if created_course
         render json: { message: "Course created successfully"}, status: :created
@@ -74,19 +83,28 @@ class Api::V1::CoursesController < ApplicationController
     begin
       course = Course.find_by(id: params[:id])
       if course
+
         # name_param
-        name_param = course_params[:name].to_s.gsub(/\s+/, '').downcase
+        name_param = course_params[:name].to_s.strip.downcase
         if name_param.present?
-          name_param = name_param.to_s.strip.titleize
+          name_param = name_param.to_s.titleize
         end
+
+        # category_param
+        category_param = course_params[:category].to_s.strip.downcase
+        if category_param.present?
+          category_param = category_param.to_s.downcase
+        end
+
         # update_course
         updated_course = course.update(
-          name: name_param
+          name: name_param,
+          category: category_param
         )
         if updated_course
           render json: { message: "Course Updated!"}, status: :ok
         else
-          render json: { error: "Error Updating Course"}, status: :unprocessable_entity
+          render json: { error: "Error Updating Course", info: course.errors.full_messages }, status: :unprocessable_entity
         end
       else
         render json: { error: "Course Not Found!"}, status: :not_found
@@ -146,6 +164,6 @@ class Api::V1::CoursesController < ApplicationController
   end
 
   def course_params
-    params.require(:course).permit(:name, :user_id)
+    params.require(:course).permit(:name, :category, :user_id)
   end
 end
