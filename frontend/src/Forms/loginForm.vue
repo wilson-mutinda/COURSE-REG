@@ -190,18 +190,19 @@ export default{
                 // retreive access_token and refresh_token
                 const access_token = response.data.access_token;
                 const refresh_token = response.data.refresh_token;
+                const flag = response.data.flag;
 
                 // store in local storage
                 localStorage.setItem('access_token', access_token);
                 localStorage.setItem('refresh_token', refresh_token);
-                
+
                 this.clearForm();
                 this.errors = {};
                 this.showLoginToast = true;
 
                 setTimeout(() => {
                     this.showLoginToast = false
-                    this.$router.push('/dashboard')
+                    this.$router.push(`/${flag}-dashboard`)
                 }, 3000);
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.errors) {
