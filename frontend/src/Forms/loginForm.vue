@@ -16,8 +16,14 @@
       </div>
 
     <div class="form-template bg-gray-600 flex min-h-screen items-center justify-center p-2">
-        <div class="login-form bg-white w-full max-w-md rounded-md p-4">
+        <div class="login-form bg-white w-full max-w-md rounded-md p-4 relative">
             <form @submit.prevent="userLogin" action="">
+                <!-- close button -->
+                 <div class="">
+                    <button @click="goToHome" type="button" class="absolute right-3">
+                        <img src="/close.png" alt="close" width="14px">
+                    </button>
+                 </div>
                 <p v-if="errors.general" class="text-sm text-red-500 text-center mb-3">{{ errors.general }}</p>
                 <h3 class="text-red-400 text-center font-bold">Sign in with email</h3>
                 <div class="">
@@ -106,6 +112,11 @@ export default{
         // googleAuth
         googleAuth(){
             window.location.href = 'http://localhost:3000/auth/google_oauth2'
+        },
+
+        // goToHome
+        goToHome(){
+            this.$router.push('/')
         },
 
         // clearResetEmail
