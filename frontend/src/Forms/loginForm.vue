@@ -186,6 +186,15 @@ export default{
             }
             try {
                 const response = await api.post('user_login', payload)
+
+                // retreive access_token and refresh_token
+                const access_token = response.data.access_token;
+                const refresh_token = response.data.refresh_token;
+
+                // store in local storage
+                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('refresh_token', refresh_token);
+                
                 this.clearForm();
                 this.errors = {};
                 this.showLoginToast = true;
