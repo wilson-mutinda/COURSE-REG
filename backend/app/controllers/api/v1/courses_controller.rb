@@ -6,6 +6,7 @@ class Api::V1::CoursesController < ApplicationController
   # create_course
   def create_course
     begin
+
       # name_param
       name_param = course_params[:name].to_s
       if name_param.blank?
@@ -14,6 +15,7 @@ class Api::V1::CoursesController < ApplicationController
       else
         name_param = name_param.to_s.strip.titleize
       end
+
       # category_param
       category_param = course_params[:category].to_s
       if category_param.blank?
@@ -23,11 +25,21 @@ class Api::V1::CoursesController < ApplicationController
         category_param = category_param.to_s.strip.titleize
       end
 
+      # duration_param
+      duration_param = course_params[:duration].to_s
+      if duration_param.blank?
+        render json: { errors: { duration: "Duration Required!"}}, status: :unprocessable_entity
+        return
+      else
+        duration_param = duration_param.to_s.strip.titleize
+      end
+
       # create_course
       created_course = Course.create(
         user_id: @current_user_id,
         name: name_param,
-        category: category_param
+        category: category_param,
+        duration: duration_param
       )
       if created_course
         render json: { message: "Course created successfully"}, status: :created
@@ -84,23 +96,31 @@ class Api::V1::CoursesController < ApplicationController
       course = Course.find_by(id: params[:id])
       if course
 
+        updated_params = {}
+
         # name_param
         name_param = course_params[:name].to_s.strip.downcase
         if name_param.present?
           name_param = name_param.to_s.titleize
+          updated_params[:name] = name_param
         end
 
         # category_param
         category_param = course_params[:category].to_s.strip.downcase
         if category_param.present?
           category_param = category_param.to_s.downcase
+          updated_params[:category] = category_param
+        end
+
+        # duration_param
+        duration_param = course_params[:duration].to_s
+        if duration_param.present?
+          duration_param = duration_param.to_s.titleize
+          updated_params[:duration] = duration_param
         end
 
         # update_course
-        updated_course = course.update(
-          name: name_param,
-          category: category_param
-        )
+        updated_course = course.update( updated_params)
         if updated_course
           render json: { message: "Course Updated!"}, status: :ok
         else
@@ -164,6 +184,6 @@ class Api::V1::CoursesController < ApplicationController
   end
 
   def course_params
-    params.require(:course).permit(:name, :category, :user_id)
+    params.require(:course).permit(:name, :category, :duration, :user_id)
   end
 end
