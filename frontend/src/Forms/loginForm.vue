@@ -190,16 +190,22 @@ export default{
                 // retreive access_token and refresh_token
                 const access_token = response.data.access_token;
                 const refresh_token = response.data.refresh_token;
+
                 const flag = response.data.flag;
+                const email = response.data.email;
+                const phone = response.data.phone;
 
                 // store in local storage
                 localStorage.setItem('access_token', access_token);
                 localStorage.setItem('refresh_token', refresh_token);
 
+                localStorage.setItem('flag', flag);
+                localStorage.setItem('email', email);
+                localStorage.setItem('phone', phone);                
+
                 this.clearForm();
                 this.errors = {};
                 this.showLoginToast = true;
-
                 setTimeout(() => {
                     this.showLoginToast = false
                     this.$router.push(`/${flag}-dashboard`)
