@@ -138,7 +138,9 @@ class Api::V1::UsersController < ApplicationController
             message: "Login Successful",
             access_token: access_token,
             refresh_token: refresh_token,
-            flag: user.flag
+            flag: user.flag,
+            email: user.email,
+            phone: user.phone
           }, status: :ok
         else
           render json: { errors: { password: "Invalid Password!"}}, status: :unauthorized
@@ -160,11 +162,11 @@ class Api::V1::UsersController < ApplicationController
         decoded_token = JsonWebToken.decode(refresh_token)
         user_id = decoded_token['user_id']
         flag = decoded_token['flag']
-        new_acceess_token = JsonWebToken.encode(user_id, 30.minutes.from_now)
+        new_access_token = JsonWebToken.encode(user_id, 30.minutes.from_now)
         render json: {
           id: user_id,
           flag: flag,
-          new_access_token: new_acceess_token
+          new_access_token: new_access_token
         }, status: :ok
       else
         render json: { error: "Token Needed"}, status: :unauthorized
