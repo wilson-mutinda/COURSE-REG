@@ -160,13 +160,20 @@ class Api::V1::UsersController < ApplicationController
       if header
         refresh_token = header.split(' ').last
         decoded_token = JsonWebToken.decode(refresh_token)
+
         user_id = decoded_token['user_id']
         flag = decoded_token['flag']
-        new_access_token = JsonWebToken.encode(user_id, 30.minutes.from_now)
+
+        new_access_token = JsonWebToken.encode(user_id, flag, 30.minutes.from_now)
+        new_refresh_token = JsonWebToken.encode(user_id, flag, 24.hours.from_now)
+
         render json: {
+          message: "Token refreshed successfully",
           id: user_id,
           flag: flag,
-          new_access_token: new_access_token
+          new_access_token: new_access_token,
+          new_refresh_token: new_refresh_token
+
         }, status: :ok
       else
         render json: { error: "Token Needed"}, status: :unauthorized
