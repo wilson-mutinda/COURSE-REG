@@ -93,6 +93,22 @@
                                 <span class="font-bold">{{ courseCount }}</span>
                             </div>
                           </div>
+                          <!-- Active Courses -->
+                           <div class="flex items-center bg-white p-6 rounded-md">
+                            <img src="/checklist.png" alt="checklist" width="40px" class="bg-gray-200 rounded-full p-1 mr-2">
+                            <div class="">
+                                <p class="font-semibold">Active Courses</p>
+                                <span class="font-bold">{{ activeCourses }}</span>
+                            </div>
+                           </div>
+                           <!-- Inactive Courses -->
+                            <div class="flex items-center bg-white p-6 rounded-md">
+                                <img src="/shield.png" alt="shield" width="40px" class="bg-gray-200 rounded-full p-1 mr-2">
+                                <div class="">
+                                    <p class="font-semibold">Inactive Courses</p>
+                                    <span class="font-bold">{{ inActiveCourses }}</span>
+                                </div>
+                            </div>
                      </div>
 
                      <!-- course overview -->
@@ -104,7 +120,19 @@
                             </div>
 
                             <!-- create button -->
-                            <div class="">
+                            <div class="flex items-center gap-3">
+                                <button type="button" class="rounded-md bg-purple-400 px-4 py-2 gap-2 flex items-center hover:bg-purple-500 text-white text-lg">
+                                    <img src="/filter.png" alt="filter" width="14px">
+                                    <span class="text-xl">Active</span>
+                                </button>
+                                <button type="button" class="rounded-md bg-pink-400 px-4 py-2 gap-2 flex items-center hover:bg-pink-500 text-white text-lg">
+                                    <img src="/filter.png" alt="filter" width="14px">
+                                    <span class="text-xl">Inactive</span>
+                                </button>
+                                <button type="button" class="rounded-md bg-gray-400 px-4 py-2 gap-2 flex items-center hover:bg-gray-500 text-white text-lg">
+                                    <img src="/filter.png" alt="filter" width="14px">
+                                    <span class="text-xl">All</span>
+                                </button>
                                 <button @click="openCreateCourseForm" class="rounded-md bg-green-400 px-4 py-2 gap-2 flex items-center hover:bg-green-500 text-white text-lg">
                                     <img src="/plus.png" alt="add" width="14px">
                                     <span class="text-xl">Create Course</span>
@@ -120,6 +148,7 @@
                                     <tr class="">
                                         <th>#</th>
                                         <th>Courses</th>
+                                        <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -129,10 +158,10 @@
                                     <tr v-if="filteredCourses().slice(0, showFourCourses).length === 0">
                                         <td colspan="3" class="text-center text-gray-500 py-4">No matches!</td>
                                     </tr>
-                                    
+
                                     <tr v-for="(course, index) in filteredCourses().slice(0, showFourCourses)" :key="index" class="hover:bg-gray-50 border-b">
                                         <td>{{ index + 1 }}.</td>
-                                        <td>
+                                        <td class="">
                                             <div class="flex items-center gap-4">
                                                 <img src="/open-magazine.png" alt="open-magazine" class="w-8 h-8 rounded-full ring-1 ring-blue-500 px-2 py-1">
                                                 <div class="flex flex-col space-y-2">
@@ -142,6 +171,9 @@
                                                     </span>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td class="flex items-center">
+                                            <p class="bg-blue-400 rounded-full text-white py-2 px-4 mt-3">{{ course.status }}</p>
                                         </td>
                                         <td>
                                             <div class="flex items-center gap-3">
@@ -206,6 +238,13 @@
                     <input class="ring-1 ring-green-400 w-full rounded-md p-2 outline-none text-xl mb-2" v-model="duration" placeholder="8 weeks, 6 months" type="text" name="duration" id="">
                   </div>
 
+                  <!-- actions -->
+                   <div class="">
+                    <button type="button" v-if="isEditMode" @click="updateCourseStatus(courseIdToUpdate)" class="bg-yellow-500 text-white px-4 py-2 mt-2 rounded-md">
+                        <p>{{ buttonStatus(courseIdToUpdate) }}</p>
+                    </button>
+                   </div>
+
                   <!-- buttons -->
                    <div class="flex justify-between mt-4">
                     <button class="rounded-md bg-gray-600 px-4 py-2 text-white text-lg" @click="openCreateCourseModal = false" type="button">Close</button>
@@ -231,6 +270,10 @@ export default{
 
             studentCount: 0,
 
+            activeCourses: 0,
+
+            inActiveCourses: 0,
+
             flag: '',
             email: '',
             phone: '',
@@ -251,6 +294,8 @@ export default{
 
             courseIdToUpdate: null,
             isEditMode: false,
+
+            isActive: true,
         };
     },
 
@@ -262,6 +307,53 @@ export default{
     },
 
     methods: {
+
+        // activeCourses
+        activatedCourses(){
+            this.activeCourses = this.allCourses.filter(course => 
+                course.status === 'Active'
+            ).length;
+        },
+
+        // inActiveCourses
+        deactivatedCourses(){
+            this.inActiveCourses = this.allCourses.filter(course => 
+                course.status === 'Inactive'
+            ).length;
+        },
+
+        // updateCourseStatus
+        async updateCourseStatus(courseId){
+            try {
+                const course = this.allCourses.find(c => 
+                    c.id === courseId
+                );
+                const newStatus = course.status === 'Active' ? 'Inactive' : 'Active';
+                await api.patch(`update_course/${courseId}`, {
+                    status: newStatus
+                });
+                
+                this.openCreateCourseModal = false;
+    
+                await this.AllCourses();
+                this.deactivatedCourses();
+                this.activatedCourses();
+            } catch (error) {
+                console.error('Error Updating Status:', error);
+            }
+        },
+
+        // button status
+        buttonStatus(courseId){
+            const course = this.allCourses.find(c => 
+                c.id === courseId
+            );
+            if (course.status === 'Active') {
+                return 'Deactivate'
+            } else {
+                return 'Activate'
+            }
+        },
 
         // filteredCourses
         filteredCourses(){
@@ -391,18 +483,25 @@ export default{
 
     },
 
-    mounted(){
+    async mounted(){
+
         // userFlag
         this.fetchFlag();
 
         // allCourses
-        this.fetchAllCourses();
+        await this.fetchAllCourses();
 
         // allStudents
-        this.fetchAllStudents();
+        await this.fetchAllStudents();
 
         // allCourses
-        this.AllCourses();
+        await this.AllCourses();
+
+        // activatedCourses
+        this.activatedCourses();
+
+        // deactivatedCourses
+        this.deactivatedCourses();
     }
 };
 
