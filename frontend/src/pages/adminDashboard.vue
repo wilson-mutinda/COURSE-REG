@@ -46,7 +46,7 @@
                         <!-- search bar -->
                          <div class=" flex rounded-full ring-1 bg-transparent gap-2 ring-green-300 p-2 hover:ring-red-300 bg-white">
                             <img src="/search.png" alt="search" width="20px" height="20px">
-                            <input type="text" name="" id="" class="outline-none text-lg bg-transparent" placeholder="Search...">
+                            <input v-model="searchTerm" type="text" name="" id="" class="outline-none text-lg bg-transparent" placeholder="Search courses...">
                          </div>
 
                          <!-- notification -->
@@ -126,7 +126,11 @@
 
                                 <!-- tbody -->
                                  <tbody>
-                                    <tr v-for="(course, index) in fourCourses" :key="index" class="hover:bg-gray-50 border-b">
+                                    <tr v-if="filteredCourses().slice(0, showFourCourses).length === 0">
+                                        <td colspan="3" class="text-center text-gray-500 py-4">No matches!</td>
+                                    </tr>
+                                    
+                                    <tr v-for="(course, index) in filteredCourses().slice(0, showFourCourses)" :key="index" class="hover:bg-gray-50 border-b">
                                         <td>{{ index + 1 }}.</td>
                                         <td>
                                             <div class="flex items-center gap-4">
@@ -221,6 +225,8 @@ export default{
 
     data(){
         return {
+            searchTerm: '',
+
             courseCount: 0,
 
             studentCount: 0,
@@ -256,6 +262,14 @@ export default{
     },
 
     methods: {
+
+        // filteredCourses
+        filteredCourses(){
+            return this.allCourses.filter(course => 
+                course.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+            )
+        },
+
         // resetCourseForm
         resetConfirmForm(){
             this.name = '';
