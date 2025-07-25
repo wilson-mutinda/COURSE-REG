@@ -39,7 +39,8 @@ class Api::V1::CoursesController < ApplicationController
         user_id: @current_user_id,
         name: name_param,
         category: category_param,
-        duration: duration_param
+        duration: duration_param,
+        status: 'active'
       )
       if created_course
         render json: { message: "Course created successfully"}, status: :created
@@ -119,6 +120,13 @@ class Api::V1::CoursesController < ApplicationController
           updated_params[:duration] = duration_param
         end
 
+        # status_param
+        status_param = course_params[:status].to_s
+        if status_param.present?
+          status_param = status_param.to_s.capitalize
+          updated_params[:status] = status_param
+        end
+
         # update_course
         updated_course = course.update( updated_params)
         if updated_course
@@ -184,6 +192,6 @@ class Api::V1::CoursesController < ApplicationController
   end
 
   def course_params
-    params.require(:course).permit(:name, :category, :duration, :user_id)
+    params.require(:course).permit(:name, :category, :duration, :status, :user_id)
   end
 end
