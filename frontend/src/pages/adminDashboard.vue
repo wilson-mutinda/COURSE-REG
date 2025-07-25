@@ -105,7 +105,7 @@
 
                             <!-- create button -->
                             <div class="">
-                                <button @click="openCreateCourseModal = true" class="rounded-md bg-green-400 px-4 py-2 gap-2 flex items-center hover:bg-green-500 text-white text-lg">
+                                <button @click="openCreateCourseForm" class="rounded-md bg-green-400 px-4 py-2 gap-2 flex items-center hover:bg-green-500 text-white text-lg">
                                     <img src="/plus.png" alt="add" width="14px">
                                     <span class="text-xl">Create Course</span>
                                 </button>
@@ -256,6 +256,20 @@ export default{
     },
 
     methods: {
+        // resetCourseForm
+        resetConfirmForm(){
+            this.name = '';
+            this.category = '';
+            this.duration = '';
+            this.courseIdToUpdate = null;
+            this.isEditMode = false;
+        },
+
+        // openCreateCourseForm
+        openCreateCourseForm(){
+            this.resetConfirmForm();
+            this.openCreateCourseModal = true;
+        },
 
         // openEditCourseModal
         openEditCourseModal(course){
