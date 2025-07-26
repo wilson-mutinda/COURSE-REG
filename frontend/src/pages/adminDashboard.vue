@@ -121,15 +121,15 @@
 
                             <!-- create button -->
                             <div class="flex items-center gap-3">
-                                <button type="button" class="rounded-md bg-purple-400 px-4 py-2 gap-2 flex items-center hover:bg-purple-500 text-white text-lg">
+                                <button type="button" @click="showActive" class="rounded-md bg-purple-400 px-4 py-2 gap-2 flex items-center hover:bg-purple-500 text-white text-lg">
                                     <img src="/filter.png" alt="filter" width="14px">
                                     <span class="text-xl">Active</span>
                                 </button>
-                                <button type="button" class="rounded-md bg-pink-400 px-4 py-2 gap-2 flex items-center hover:bg-pink-500 text-white text-lg">
+                                <button type="button" @click="showInactive" class="rounded-md bg-pink-400 px-4 py-2 gap-2 flex items-center hover:bg-pink-500 text-white text-lg">
                                     <img src="/filter.png" alt="filter" width="14px">
                                     <span class="text-xl">Inactive</span>
                                 </button>
-                                <button type="button" class="rounded-md bg-gray-400 px-4 py-2 gap-2 flex items-center hover:bg-gray-500 text-white text-lg">
+                                <button type="button" @click="showAll" class="rounded-md bg-gray-400 px-4 py-2 gap-2 flex items-center hover:bg-gray-500 text-white text-lg">
                                     <img src="/filter.png" alt="filter" width="14px">
                                     <span class="text-xl">All</span>
                                 </button>
@@ -296,6 +296,8 @@ export default{
             isEditMode: false,
 
             isActive: true,
+
+            currentStatus: 'All'
         };
     },
 
@@ -307,6 +309,21 @@ export default{
     },
 
     methods: {
+
+        // showAll
+        showAll(){
+            this.currentStatus = 'All'
+        },
+
+        // showActive
+        showActive(){
+            this.currentStatus = 'Active'
+        },
+
+        // showInactive
+        showInactive(){
+            this.currentStatus = 'Inactive'
+        },
 
         // activeCourses
         activatedCourses(){
@@ -357,9 +374,14 @@ export default{
 
         // filteredCourses
         filteredCourses(){
-            return this.allCourses.filter(course => 
-                course.name.toLowerCase().includes(this.searchTerm.toLowerCase())
-            )
+            return this.allCourses.filter(course => {
+                const matchesSearch = course.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+                const matchesStatus = this.currentStatus === 'All' 
+                || (this.currentStatus === 'Active' && course.status === 'Active') 
+                || (this.currentStatus === 'Inactive' && course.status === 'Inactive');
+                return matchesSearch && matchesStatus;
+            }
+            );
         },
 
         // resetCourseForm

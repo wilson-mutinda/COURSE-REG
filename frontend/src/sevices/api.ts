@@ -32,7 +32,7 @@ async function refreshAuthToken(): Promise<boolean>{
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 
-    window.location.href = '/login';
+    // window.location.href = '/login';
     return false;
   }
   try {
