@@ -169,8 +169,12 @@ class Api::V1::CoursesController < ApplicationController
         decoded_token = JsonWebToken.decode(token)
         @current_user_id = decoded_token[:user_id]
         @current_user_flag = decoded_token[:flag]
-      rescue JWT::DecodeError
-        render json: { error: "Invalid token" }, status: :unauthorized
+      rescue => e
+        if e.message == 'Token Expired'
+          render json: { error: 'Token Expired'}, status: :unauthorized
+        else
+          render json: { error: 'Invalid token'}, status: :unauthorized
+        end
       end
     else
       render json: { error: "Token Required!"}, status: :unauthorized
