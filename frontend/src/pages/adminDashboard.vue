@@ -1,14 +1,15 @@
 <template>
 
     <!-- create course success toast -->
-     <div v-if="showCourseCreatedToast" class="bg-blue-400 fixed rounded-md p-4 mt-20 right-4 top-6">
+     <div v-if="showCourseCreatedToast" class="bg-blue-400 fixed rounded-md p-4 mt-20 right-4 top-6 shadow-lg">
         <p class="text-white text-xl">Success</p>
      </div>
 
     <div class="min-h-screen bg-gray-100">
-        <div class="flex items-center w-full flex-col md:flex-row gap-4 p-1">
+        <div class="flex w-full flex-col md:flex-row gap-4 p-1">
+
             <!-- left -->
-            <div class="left md:w-[20%] lg:w-[15%] bg-white min-h-screen rounded-md">
+            <div class="left md:w-[20%] lg:w-[15%] bg-white min-h-screen rounded-md p-2">
                 <!-- logo -->
                  <div class="flex items-center gap-2 p-2">
                     <img src="/book.png" alt="book" width="40px">
@@ -16,7 +17,7 @@
                  </div>
 
                  <!-- other buttons -->
-                  <div class="flex flex-col space-y-3 mt-3 p-2">
+                  <div class="flex flex-col space-y-3 mt-6 p-2">
                     <button class="flex items-center gap-2 bg-green-200 rounded-md p-2 hover:bg-purple-100">
                         <img src="/home.png" alt="home" width="30px">
                         <p class="text-2xl">Dashboard</p>
@@ -25,34 +26,52 @@
                         <img src="/learning.png" alt="learning" width="30px">
                         <p class="text-2xl">Courses</p>
                     </button>
-                    <button class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
+                    <button @click="goToStudentPage" class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
                         <img src="/academic.png" alt="academic" width="30px">
                         <p class="text-2xl">Students</p>
                     </button>
                   </div>
             </div>
+
             <!-- right -->
-            <div class="right md:w-[80%] lg:w-[85%] bg-gray-100 min-h-screen rounded-md">
+            <div class="right md:w-[80%] lg:w-[85%] bg-gray-100 min-h-screen rounded-md p-2">
+
                 <!-- navbar -->
-                 <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white mb-4">
+                 <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white rounded-md shadow mb-4">
                     <!-- title -->
-                    <div class="">
-                        <p class="text-2xl font-bold">Dashboard</p>
-                        <!-- <p> courses:{{ courseCount }}</p>
-                        <p>students:{{ studentCount }}</p> -->
-                    </div>
+                    <p class="text-2xl font-bold">Dashboard</p>
+
                     <!-- search, ntifications and -->
                      <div class="flex items-center gap-4">
                         <!-- search bar -->
-                         <div class=" flex rounded-full ring-1 bg-transparent gap-2 ring-green-300 p-2 hover:ring-red-300 bg-white">
-                            <img src="/search.png" alt="search" width="20px" height="20px">
+                         <div class=" flex rounded-full ring-1 gap-2 ring-green-300 p-2 hover:ring-red-300 bg-white">
+                            <img src="/search.png" alt="search" width="20px">
                             <input v-model="searchTerm" type="text" name="" id="" class="outline-none text-lg bg-transparent" placeholder="Search courses...">
                          </div>
 
-                         <!-- notification -->
-                          <div class="bg-white p-3 rounded-full">
-                            <img src="/notification.png" alt="notification" width="30px">
+                         <!-- notification button -->
+                          <div class="bg-white p-3 rounded-full relative">
+                            <button @click="openNotificationModal">
+                                <img src="/notification.png" alt="notification" width="30px">
+                                <span v-if="notifications.some(n=> ['student_created', 'student_updated'].includes(n.action))" 
+                                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+                                    {{ notifications.filter(n => ['student_created', 'student_updated'].includes(n.action) && !n.read).length }}
+                                </span>
+                            </button>
                           </div>
+
+                          <!-- notification modal -->
+                           <div v-if="showNotificationModal" class="bg-black bg-opacity-50 fixed z-50 w-full top-0 h-full left-0 flex items-center justify-center">
+                            <div class="bg-white p-6 rounded-lg shadow-lg w-96 max-h-[80vh] overflow-y-auto">
+                                <h2 class="text-lg font-bold mb-4">Unread Notifications</h2>
+                                <ul>
+                                    <li v-for="n in unreadNotifications" :key="n.id" class="mb-2 border-b pb-2">
+                                        <p><strong>{{ n.action }}</strong>: {{ n.message }}</p>
+                                    </li>
+                                </ul>
+                                <button @click="closeNotificationModal" class="mt-4 bg-blue-500 text-white px-4 py-2 rounded">Close</button>
+                            </div>
+                           </div>
                           
                           <!-- other -->
                            <div class="relative">
@@ -60,7 +79,7 @@
                                     <img src="/user.png" alt="avatar" width="30px" class="rounded-full ring-1 p-1 ring-green-400 w-10 h-10">
                                     <p class="text-lg font-semibold">{{ flag.charAt(0).toUpperCase() + flag.slice(1) }}</p>
                                     <button type="button" @click="toggleAdminInfo">
-                                    <img src="/down-arrow.png" alt="down-arrow" width="12px">
+                                        <img src="/down-arrow.png" alt="down-arrow" width="12px">
                                     </button>
                                 </div>
 
@@ -76,10 +95,10 @@
                  <!-- body -->
                   <div class="">
                     <!-- top -->
-                     <div class="flex gap-10">
+                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <!-- all students -->
-                         <div class="flex items-center bg-white p-6 rounded-md">
-                            <img src="/academic.png" alt="learning" width="40px" class="bg-blue-200 rounded-full p-1 mr-2">
+                         <div class="flex items-center bg-white p-6 rounded-md shadow">
+                            <img src="/academic.png" alt="learning" width="40px" class="bg-blue-200 rounded-full p-1 w-10 h-10 mr-3">
                             <div class="">
                                 <p class="font-semibold">Total Students</p>
                                 <span class="font-bold">{{ studentCount }}</span>
@@ -87,7 +106,7 @@
                          </div>
                          <!-- all courses -->
                           <div class="flex items-center bg-white p-6 rounded-md">
-                            <img src="/learning.png" alt="academic" width="40px" class="bg-purple-200 rounded-full p-1 mr-2">
+                            <img src="/learning.png" alt="academic" width="40px" class="bg-purple-200 rounded-full p-1 w-10 h-10 mr-3">
                             <div class="">
                                 <p class="font-semibold">Total Courses</p>
                                 <span class="font-bold">{{ courseCount }}</span>
@@ -95,7 +114,7 @@
                           </div>
                           <!-- Active Courses -->
                            <div class="flex items-center bg-white p-6 rounded-md">
-                            <img src="/checklist.png" alt="checklist" width="40px" class="bg-gray-200 rounded-full p-1 mr-2">
+                            <img src="/checklist.png" alt="checklist" width="40px" class="bg-gray-200 rounded-full p-1 w-10 h-10 mr-3">
                             <div class="">
                                 <p class="font-semibold">Active Courses</p>
                                 <span class="font-bold">{{ activeCourses }}</span>
@@ -103,7 +122,7 @@
                            </div>
                            <!-- Inactive Courses -->
                             <div class="flex items-center bg-white p-6 rounded-md">
-                                <img src="/shield.png" alt="shield" width="40px" class="bg-gray-200 rounded-full p-1 mr-2">
+                                <img src="/shield.png" alt="shield" width="40px" class="bg-gray-200 rounded-full p-1 w-10 h-10 mr-3">
                                 <div class="">
                                     <p class="font-semibold">Inactive Courses</p>
                                     <span class="font-bold">{{ inActiveCourses }}</span>
@@ -111,16 +130,31 @@
                             </div>
                      </div>
 
+                     <div class="">
+                        <!-- recent activity -->
+                        <div class="bg-white mt-6 p-4 rounded-md shadow">
+                            <p class="font-bold text-xl mb-4">Recent Activity</p>
+                            <div v-if="notifications.length" class="">
+                                <div v-for="(message, index) in fourNotifications" :key="index" class="border-b py-2">
+                                    <span class="text-md font-semibold">{{ message.action.charAt(0).toUpperCase() + message.action.slice(1) }}</span>
+                                    <p class="">{{ message.message }}</p>
+                                    <p class="text-sm text-gray-500">{{ formatTime(message.created_at) }}</p>
+                                </div>
+                                <!-- show more -->
+                                 <button v-if="fourNotifications.length < notifications.length" @click="showFourNotifications += 4" class="text-blue-600 text-sm mt-2">More...</button>
+                            </div>
+                            <p v-else class="text-gray-500">No recent activity.</p>
+                        </div>
+                     </div>
+
                      <!-- course overview -->
-                      <div class="rounded-md bg-white mt-5 mr-4 p-2 shadow">
+                      <div class="rounded-md bg-white mt-6 mr-4 p-4 shadow">
                         <div class="flex justify-between items-center mb-4">
                             <!-- title -->
-                            <div class="p-2">
-                                <p class="text-2xl font-semibold">Course Overview</p>
-                            </div>
+                            <p class="text-2xl font-semibold">Course Overview</p>
 
                             <!-- create button -->
-                            <div class="flex items-center gap-3">
+                            <div class="flex gap-2">
                                 <button type="button" @click="showActive" class="rounded-md bg-purple-400 px-4 py-2 gap-2 flex items-center hover:bg-purple-500 text-white text-lg">
                                     <img src="/filter.png" alt="filter" width="14px">
                                     <span class="text-xl">Active</span>
@@ -156,7 +190,7 @@
                                 <!-- tbody -->
                                  <tbody>
                                     <tr v-if="filteredCourses().slice(0, showFourCourses).length === 0">
-                                        <td colspan="3" class="text-center text-gray-500 py-4">No matches!</td>
+                                        <td colspan="4" class="text-center text-gray-500 py-4">No matches!</td>
                                     </tr>
 
                                     <tr v-for="(course, index) in filteredCourses().slice(0, showFourCourses)" :key="index" class="hover:bg-gray-50 border-b">
@@ -164,19 +198,19 @@
                                         <td class="">
                                             <div class="flex items-center gap-4">
                                                 <img src="/open-magazine.png" alt="open-magazine" class="w-8 h-8 rounded-full ring-1 ring-blue-500 px-2 py-1">
-                                                <div class="flex flex-col space-y-2">
-                                                    <p class="text-xl font-semibold">{{ course.name }}</p>
-                                                    <span class="text-lg text-gray-600">
+                                                <div class="">
+                                                    <p class="font-semibold">{{ course.name }}</p>
+                                                    <span class="text-sm text-gray-600">
                                                         {{ course.category.charAt(0).toUpperCase() + course.category.slice(1) }}
                                                     </span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="flex items-center">
-                                            <p class="bg-blue-400 rounded-full text-white py-2 px-4 mt-3">{{ course.status }}</p>
+                                        <td class="">
+                                            <p class="bg-blue-400 rounded-full text-white py-1 px-4 inline-block mt-2">{{ course.status }}</p>
                                         </td>
                                         <td>
-                                            <div class="flex items-center gap-3">
+                                            <div class="flex gap-3">
                                                 <button @click="openEditCourseModal(course)" class="rounded-full p-2" type="button">
                                                     <img src="/edit.png" alt="edit" width="20px">
                                                 </button>
@@ -190,7 +224,7 @@
                             </table>
                          </div>
                          <!-- show more -->
-                         <div v-if="showFourCourses < allCourses.length" class="">
+                         <div v-if="showFourCourses < allCourses.length" class="mt-4 text-center">
                             <button @click="moreCourses" class="bg-blue-30 rounded-md p-2 text-green-400">
                                 <p>Show more...</p>
                             </button>
@@ -202,7 +236,7 @@
     </div>
 
     <!-- modal -->
-     <div v-if="openCreateCourseModal" class="bg-black bg-opacity-70 fixed inset-0 flex justify-center items-center">
+     <div v-if="openCreateCourseModal" class="bg-black bg-opacity-70 fixed inset-0 flex justify-center items-center z-50">
         <div class="bg-white w-full max-w-md p-4 rounded-md relative">
             <form @submit.prevent="createCourse" action="">
                 <!-- close buton -->
@@ -259,6 +293,30 @@
 
 <script>
 import api from '@/sevices/api';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+// Customize language
+import 'dayjs/locale/en'; // default locale
+dayjs.locale('en', {
+  relativeTime: {
+    future: 'in %s',
+    past: '%s ago',
+    s: 'a few secs',
+    m: '1 min',
+    mm: '%d mins',
+    h: '1 hour',
+    hh: '%d hrs',
+    d: '1 day',
+    dd: '%d days',
+    M: '1 mo',
+    MM: '%d mos',
+    y: '1 yr',
+    yy: '%d yrs',
+  }
+});
+
+dayjs.extend(relativeTime);
 
 export default{
 
@@ -297,11 +355,33 @@ export default{
 
             isActive: true,
 
-            currentStatus: 'All'
+            currentStatus: 'All',
+
+            notifications: [],
+
+            timeInterval: null,
+
+            showFourNotifications: 4,
+
+            readNotification: false,
+
+            showNotificationModal: false
+
         };
     },
 
     computed: {
+        // unreadNotifications
+        unreadNotifications(){
+            return this.notifications.filter(n => 
+                ['student_created', 'student_updated'].includes(n.action) && !n.read
+            );
+        },
+        // fourNotifications
+        fourNotifications(){
+            return this.notifications.slice(0, this.showFourNotifications)
+        },
+        
         // showOnly4Coursespergo
         fourCourses(){
             return this.allCourses.slice(0, this.showFourCourses)
@@ -309,6 +389,67 @@ export default{
     },
 
     methods: {
+
+        // goToStudentPage
+        goToStudentPage(){
+            this.$router.push('/admin-dashboard/students')
+        },
+
+        // openNotificationModal
+        openNotificationModal(){
+            this.showNotificationModal = true
+        },
+
+        // closeNotificationModal
+        async closeNotificationModal(){
+            this.showNotificationModal = false;
+
+            // mark unread notifications as read
+            const unread = this.unreadNotifications;
+            for (const notif of unread){
+                try {
+                    await api.patch(`update_notification/${notif.id}`, {
+                        read: true
+                    });
+                    notif.read = true
+                } catch (error) {
+                    console.error('Failed:', error);
+                }
+            }
+        },
+
+        // viewNotification
+        async viewNotification(){
+            try {
+                const notif = this.notifications.find(n => 
+                    ['student_created', 'student_updated'].includes(n.action) && !n.read
+                );
+                if (notif) {
+                    await api.patch(`update_notification/${notif.id}`, {
+                        read: true
+                    });
+                    notif.read = true;
+                }
+            } catch (error) {
+                console.error('Failed to update notification:', error);
+            }
+
+        },
+
+        // formatTime
+        formatTime(datetime){
+            return dayjs(datetime).fromNow();
+        },
+
+        // showNotification
+        async showNotifications() {
+            try {
+                const response = await api.get('all_notifications');
+                this.notifications = response.data
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        },
 
         // showAll
         showAll(){
@@ -421,6 +562,7 @@ export default{
                 await api.delete(`delete_course/${courseId}`);
                 this.fetchAllCourses();
                 this.AllCourses();
+                this.showNotifications();
             }
         },
 
@@ -441,6 +583,7 @@ export default{
                 }
 
                 this.openCreateCourseModal = false;
+
                 this.name = '';
                 this.category = '';
                 this.duration = '';
@@ -450,6 +593,10 @@ export default{
                 // refresh courses
                 await this.fetchAllCourses();
                 await this.AllCourses();
+                this.courseCount = this.allCourses.length;
+                this.activatedCourses();
+                this.deactivatedCourses();
+
 
                 // show toast
                 this.showCourseCreatedToast = true;
@@ -458,6 +605,8 @@ export default{
                 setTimeout(() => {
                     this.showCourseCreatedToast = false;
                 }, 3000);
+                await this.showNotifications();
+
             } catch (error) {
                 console.error("Something went wrong!", error);
             }
@@ -507,6 +656,12 @@ export default{
 
     async mounted(){
 
+        this.showNotifications();
+
+        this.timeInterval = setInterval(() => {
+            this.notifications = [...this.notifications]
+        }, 60000);
+
         // userFlag
         this.fetchFlag();
 
@@ -524,6 +679,10 @@ export default{
 
         // deactivatedCourses
         this.deactivatedCourses();
+    },
+
+    beforeUnmount(){
+        clearInterval(this.timeInterval);
     }
 };
 
