@@ -35,6 +35,10 @@ Rails.application.routes.draw do
       get 'single_course/:id/', to: 'courses#single_course'
       patch 'update_course/:id/', to: 'courses#update_course'
       delete 'delete_course/:id/', to: 'courses#delete_course'
+
+      # notifications
+      get 'all_notifications/', to: 'notifications#all_notifications'
+      patch 'update_notification/:id', to: 'notifications#update_notification'
     end
   end
 end

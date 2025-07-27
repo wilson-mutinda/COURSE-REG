@@ -104,6 +104,12 @@ class Api::V1::StudentsController < ApplicationController
         flag: 'student'
       )
       if created_user
+        Notification.create(
+          user: created_user,
+          action: 'student_created',
+          message: "Student #{f_name_param} #{l_name_param} created account.",
+          read: false
+        )
         # create_student
         created_student = Student.create(
           first_name: f_name_param,
@@ -258,6 +264,13 @@ class Api::V1::StudentsController < ApplicationController
           password_confirmation: password_confirmation_param
         )
         if updated_user
+          # create notification
+          Notification.create(
+            user: student.user,
+            action: 'student_updated',
+            message: "Student #{student.first_name} #{student.last_name} updated details.",
+            read: false
+          )
           # update_student
           updated_student = student.update(
             first_name: f_name_param,

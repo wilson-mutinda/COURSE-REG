@@ -3,6 +3,8 @@ class User < ApplicationRecord
 
   has_many :courses
 
+  has_many :notifications
+
   has_secure_password
 
   # validations

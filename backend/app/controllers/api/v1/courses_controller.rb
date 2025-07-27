@@ -22,7 +22,7 @@ class Api::V1::CoursesController < ApplicationController
         render json: { errors: { category: "Category needed!"}}, status: :unprocessable_entity
         return
       else
-        category_param = category_param.to_s.strip.titleize
+        category_param = category_param.to_s
       end
 
       # duration_param
@@ -40,9 +40,15 @@ class Api::V1::CoursesController < ApplicationController
         name: name_param,
         category: category_param,
         duration: duration_param,
-        status: 'active'
+        status: 'Active'
       )
       if created_course
+        Notification.create(
+          user: created_course.user,
+          action: 'course_created',
+          message: "#{created_course.user.flag.capitalize} created course '#{created_course.name}'.",
+          read: false
+        )
         render json: { message: "Course created successfully"}, status: :created
       else
         render json: { error: "Error creating course!", info: created_course.errors.full_messages }, status: :unprocessable_entity
@@ -130,6 +136,12 @@ class Api::V1::CoursesController < ApplicationController
         # update_course
         updated_course = course.update( updated_params)
         if updated_course
+          Notification.create(
+            user: course.user,
+            action: "course_updated",
+            message: "#{course.user.flag.capitalize} updated course '#{course.name}'.",
+            read: false
+          )
           render json: { message: "Course Updated!"}, status: :ok
         else
           render json: { error: "Error Updating Course", info: course.errors.full_messages }, status: :unprocessable_entity
@@ -149,6 +161,12 @@ class Api::V1::CoursesController < ApplicationController
       if course
         course_name = course.name
         course.destroy
+        Notification.create(
+          user:course.user,
+          action: 'course_deleted',
+          message: "#{course.user.flag.capitalize} deleted course '#{course_name}'",
+          read: false
+        )
         render json: { message: "Course '#{course_name}' deleted successfully!"}, status: :ok
       else
         render json: { error: "Course not found!"}, status: :not_found

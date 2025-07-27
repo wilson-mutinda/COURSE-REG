@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_25_133634) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_27_070530) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -23,6 +23,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_133634) do
     t.string "duration"
     t.string "status"
     t.index ["user_id"], name: "index_courses_on_user_id"
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "action"
+    t.string "message"
+    t.boolean "read"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
   create_table "students", force: :cascade do |t|
@@ -47,5 +57,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_25_133634) do
   end
 
   add_foreign_key "courses", "users"
+  add_foreign_key "notifications", "users"
   add_foreign_key "students", "users"
 end
