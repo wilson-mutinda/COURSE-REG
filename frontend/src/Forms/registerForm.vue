@@ -113,8 +113,18 @@ export default {
             try {
                 const response = await api.post('create_student', payload)
                 alert('Student Created!')
-                this.$router.push('/login')
-                this.clearForm()
+                this.clearForm();
+                this.$router.push('/student/info')
+
+                const f_name = response.data.f_name
+                const l_name = response.data.l_name
+                const phone = response.data.phone
+
+                // store in localStorage
+                localStorage.setItem('f_name', f_name);
+                localStorage.setItem('l_name', l_name);
+                localStorage.setItem('phone', phone);
+
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.errors) {
                     this.errors = error.response.data.errors
