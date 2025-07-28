@@ -1,14 +1,14 @@
 <template>
     <div class="course-page bg-gray-300 min-h-screen">
         <!-- header -->
-         <div class="bg-white p-5 flex items-center justify-between fixed top-0 left-0 right-0 z-50 shadow-md">
+         <div class="bg-white fixed top-0 left-0 right-0 z-50 shadow-md px-4 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
             <!-- logo -->
-             <div class="flex gap-3">
-                <img src="/book.png" alt="book" width="20px" height="20px">
-                <p class="text-2xl">E<span class="text-green-400">Learn</span></p>
+             <div class="flex items-center gap-2">
+                <img src="/book.png" alt="book" width="24px" height="24px">
+                <p class="text-2xl font-semibold">E<span class="text-green-400">Learn</span></p>
              </div>
              <!-- buttons -->
-              <div class="flex gap-7 text-xl">
+              <div class="flex flex-wrap md:flex-nowrap gap-5 items-center">
                 <!-- programmes -->
                  <div class="relative">
                     <button
@@ -94,19 +94,21 @@
                </div>
          </div>
          <!-- body -->
-          <div class="mt-20 ml-32">
+          <div class="mt-28 px-4 md:px-16">
             <!-- title -->
              <div class="">
-                <p class="font-semibold text-3xl text-blue-900">Our Courses</p>
+                <p class="font-semibold text-3xl text-blue-900 mb-6">Our Courses</p>
              </div>
              <!-- courses -->
-              <div class="flex items-center mt-10 gap-4">
+              <div class="flex flex-col md:flex-row gap-8">
                 <!-- left -->
-                 <div class="w-[16%]">
+                 <div class="w-full md:w-[16%] md:h-[calc(100vh-5rem)] md:sticky md:top-20">
                     <!-- all courses -->
-                     <button class="bg-blue-700 text-white px-8 py-4 w-full">
-                        Show All
-                     </button>
+                     <div class="sticky top-0 z-10 bg-blue-700">
+                        <button class="text-white px-8 py-4 w-full">
+                            Show All
+                        </button>
+                     </div>
 
                      <p class="mt-10 text-gray-700">Filter by</p>
                      <div class="bg-gray-400 mt-4 h-px"></div>
@@ -141,8 +143,8 @@
                       </div>
                  </div>
                  <!-- right -->
-                  <div class="w-[84%]">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  <div class="w-full md:w-[84%]">
+                    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 gap-4">
                         <div v-for="(course, index) in threeCourses" :key="index" class="rounded-md bg-white p-4 shadow-md text-lg text-blue-900">
                             <p class="ml-6 font-bold">{{ course.name }}</p>
 
@@ -162,7 +164,7 @@
                     </div>
 
                     <!-- next-button -->
-                     <div v-if="threeCourses.length < allCourses.length" class="mt-6 flex justify-center">
+                     <div v-if="courseLimit < allCourses.length" class="mt-6 flex justify-center">
                         <button @click="showMoreCourses" class="px-6 py-2 bg-green-400 text-white rounded hover:bg-green-500 text-lg">
                             Show More
                         </button>
