@@ -117,7 +117,12 @@ class Api::V1::StudentsController < ApplicationController
           user_id: created_user.id
         )
         if created_student
-          render json: { message: "Student Created!"}, status: :created
+          render json: { 
+            message: "Student Created!",
+            f_name: created_student.first_name,
+            l_name: created_student.last_name,
+            phone: created_student.user.phone
+          }, status: :created
         else
           render json: { error: "Error creating student!", info: created_student.errors.full_messages }, status: :unprocessable_entity
         end
