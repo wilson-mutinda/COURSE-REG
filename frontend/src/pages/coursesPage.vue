@@ -156,7 +156,7 @@
 
                             <!-- Apply now button -->
                             <div class="ml-6">
-                                <button type="button" @click="goToRegister" class="bg-green-400 mt-6 px-6 py-2 text-black rounded-xl hover:bg-blue-900 hover:text-white">
+                                <button type="button" @click="goToRegister(course)" class="bg-green-400 mt-6 px-6 py-2 text-black rounded-xl hover:bg-blue-900 hover:text-white">
                                     Apply Now
                                 </button>
                             </div>
@@ -203,7 +203,8 @@ export default {
             
             showCyberToast: false,
 
-            courseLimit: 3
+            courseLimit: 3,
+            courseId: ''
         }
     },
 
@@ -226,7 +227,9 @@ export default {
     methods: {
 
         // goToRegister
-        goToRegister(){
+        async goToRegister(course){
+            localStorage.setItem('course_id', course.id)
+            localStorage.setItem('course_name', course.name)
             this.$router.push('/create-account')
         },
 

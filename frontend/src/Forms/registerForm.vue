@@ -98,6 +98,7 @@ export default {
         // createAccount
         async createAccount() {
             this.errors = {}
+            const courseId = localStorage.getItem('course_id')
             const payload = {
                 user: {
                     email: this.email,
@@ -107,23 +108,25 @@ export default {
                 },
                 student: {
                     first_name: this.first_name,
-                    last_name: this.last_name
+                    last_name: this.last_name,
+                    course_id: courseId
                 }
             };
             try {
                 const response = await api.post('create_student', payload)
-                alert('Student Created!')
                 this.clearForm();
                 this.$router.push('/student/info')
 
-                const f_name = response.data.f_name
-                const l_name = response.data.l_name
+                const first_name = response.data.first_name
+                const last_name = response.data.last_name
                 const phone = response.data.phone
+                const user_id = response.data.user_id
 
                 // store in localStorage
-                localStorage.setItem('f_name', f_name);
-                localStorage.setItem('l_name', l_name);
+                localStorage.setItem('first_name', first_name);
+                localStorage.setItem('last_name', last_name);
                 localStorage.setItem('phone', phone);
+                localStorage.setItem('user_id', user_id);
 
             } catch (error) {
                 if (error.response && error.response.data && error.response.data.errors) {

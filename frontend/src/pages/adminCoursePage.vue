@@ -6,10 +6,10 @@
      </div>
 
     <div class="min-h-screen bg-gray-100">
-        <div class="flex w-full flex-col md:flex-row gap-4 p-1">
+        <div class="flex w-full flex-col md:flex-row gap-0 md:gap-4 p-0 md:p-1 box-border">
 
             <!-- left -->
-            <div class="left md:w-[20%] lg:w-[15%] bg-white md:min-h-screen rounded-md p-2">
+            <div class="left w-full md:w-[20%] lg:w-[15%] bg-white md:min-h-screen rounded-md p-2">
                 <!-- logo -->
                  <div class="flex items-center gap-2 p-2">
                     <img src="/book.png" alt="book" width="40px">
@@ -22,11 +22,11 @@
                         <img src="/home.png" alt="home" width="30px">
                         <p class="text-2xl">Dashboard</p>
                     </button>
-                    <button @click="goToCoursePage" class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
+                    <button class="flex items-center gap-2 bg-green-200 rounded-md p-2 hover:bg-purple-100">
                         <img src="/learning.png" alt="learning" width="30px">
                         <p class="text-2xl">Courses</p>
                     </button>
-                    <button class="flex items-center gap-2 bg-green-200 rounded-md p-2 hover:bg-purple-100">
+                    <button @click="goToStudentPage" class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
                         <img src="/academic.png" alt="academic" width="30px">
                         <p class="text-2xl">Students</p>
                     </button>
@@ -34,7 +34,7 @@
             </div>
 
             <!-- right -->
-            <div class="right md:w-[80%] lg:w-[85%] bg-gray-100 min-h-screen rounded-md p-2">
+            <div class="right w-full md:w-[80%] lg:w-[85%] bg-gray-100 rounded-md p-2">
 
                 <!-- navbar -->
                  <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white rounded-md shadow mb-4">
@@ -93,7 +93,17 @@
                  </div>
 
                  <!-- body -->
-                  <div class="">
+                  <div class="px-4 py-6">
+                    <div class="mb-6">
+                        <p class="text-4xl font-semibold mb-2">All Courses</p>
+                        <span class="text-lg text-gray-600">Manage, edit and organize courses</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div v-for="(course, index) in allCourses" :key="index" class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300">
+                            <p class="text-xl font-medium text-gray-800">{{ course.name }}</p>
+                            <p class="text-sm text-gray-500">{{ course.status }}</p>
+                        </div>
+                    </div>
                   </div>
             </div>
         </div>
@@ -146,7 +156,9 @@ export default{
 
             readNotification: false,
 
-            showNotificationModal: false
+            showNotificationModal: false,
+
+            allCourses: []
 
         };
     },
@@ -166,14 +178,20 @@ export default{
 
     methods: {
 
+        // fetchAllCourses
+        async fetchAllCourses(){
+            const response = await api.get('all_courses')
+            this.allCourses = response.data
+        },
+
         // goToStudentPage
         goToDashboardPage(){
             this.$router.push('/admin-dashboard')
         },
 
         // goToCoursePage
-        goToCoursePage(){
-            this.$router.push('/admin-dashboard/courses')
+        goToStudentPage(){
+            this.$router.push('/admin-dashboard/students')
         },
 
         // openNotificationModal
@@ -244,16 +262,6 @@ export default{
         // fetchFlag
         fetchFlag(){
             this.flag = localStorage.getItem('flag')
-        },
-
-        // fetch all students
-        async fetchAllStudents(){
-            try {
-                const response = await api.get('all_students')
-                this.studentCount = response.data.length
-            } catch (error) {
-                console.error('Failed to fetch students', error);
-            }
         },
 
     },

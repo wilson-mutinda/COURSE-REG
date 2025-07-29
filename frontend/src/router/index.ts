@@ -9,6 +9,8 @@ import adminDashboard from '@/pages/adminDashboard.vue'
 import studentDashboard from '@/pages/studentDashboard.vue'
 import adminStudentPage from '@/pages/adminStudentPage.vue'
 import studentInfoPage from '@/pages/studentInfoPage.vue'
+import courseRegPage from '@/pages/courseRegPage.vue'
+import adminCoursePage from '@/pages/adminCoursePage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,7 +24,9 @@ const router = createRouter({
     { path: '/admin-dashboard', name: 'admin-dashboard', component: adminDashboard },
     { path: '/student-dashboard', name: 'student-dashboard', component: studentDashboard },
     { path: '/admin-dashboard/students', name: 'admin-dashboard-students', component: adminStudentPage },
-    { path: '/student/info', name: 'student-info', component: studentInfoPage }
+    { path: '/student/info', name: 'student-info', component: studentInfoPage },
+    { path: '/student/course-reg', name: 'student/course-reg', component: courseRegPage },
+    { path: '/admin-dashboard/courses', name: 'admin-dashboard-courses', component: adminCoursePage },
   ],
 })
 

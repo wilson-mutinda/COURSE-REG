@@ -9,7 +9,7 @@
         <div class="flex w-full flex-col md:flex-row gap-4 p-1">
 
             <!-- left -->
-            <div class="left md:w-[20%] lg:w-[15%] bg-white min-h-screen rounded-md p-2">
+            <div class="left md:w-[20%] lg:w-[15%] bg-white md:min-h-screen rounded-md p-2">
                 <!-- logo -->
                  <div class="flex items-center gap-2 p-2">
                     <img src="/book.png" alt="book" width="40px">
@@ -22,7 +22,7 @@
                         <img src="/home.png" alt="home" width="30px">
                         <p class="text-2xl">Dashboard</p>
                     </button>
-                    <button class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
+                    <button @click="goToCoursePage" class="flex items-center gap-2 rounded-md p-2 hover:bg-purple-100">
                         <img src="/learning.png" alt="learning" width="30px">
                         <p class="text-2xl">Courses</p>
                     </button>
@@ -393,6 +393,11 @@ export default{
         // goToStudentPage
         goToStudentPage(){
             this.$router.push('/admin-dashboard/students')
+        },
+
+        // goToCoursePage
+        goToCoursePage(){
+            this.$router.push('/admin-dashboard/courses')
         },
 
         // openNotificationModal
