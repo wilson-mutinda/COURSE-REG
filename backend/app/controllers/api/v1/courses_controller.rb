@@ -49,7 +49,10 @@ class Api::V1::CoursesController < ApplicationController
           message: "#{created_course.user.flag.capitalize} created course '#{created_course.name}'.",
           read: false
         )
-        render json: { message: "Course created successfully"}, status: :created
+        render json: { 
+          message: "Course created successfully",
+          course_id: created_course.id
+        }, status: :created
       else
         render json: { error: "Error creating course!", info: created_course.errors.full_messages }, status: :unprocessable_entity
       end

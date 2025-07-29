@@ -95,6 +95,13 @@ class Api::V1::StudentsController < ApplicationController
         l_name_param = l_name_param.to_s.gsub(/\s+/, '').capitalize
       end
 
+      # course_id_param
+      course_id_param = student_params[:course_id]
+      unless course_id_param.present?
+        render json: { errors: { course_id: "Course needed"}}, status: :unprocessable_entity
+        return
+      end
+
       # create_user
       created_user = User.create(
         email: email_param,
@@ -104,30 +111,179 @@ class Api::V1::StudentsController < ApplicationController
         flag: 'student'
       )
       if created_user
-        Notification.create(
-          user: created_user,
-          action: 'student_created',
-          message: "Student #{f_name_param} #{l_name_param} created account.",
-          read: false
-        )
         # create_student
         created_student = Student.create(
           first_name: f_name_param,
           last_name: l_name_param,
-          user_id: created_user.id
+          user_id: created_user.id,
+          course_id: course_id_param
         )
         if created_student
+          Notification.create(
+            user: created_student.user,
+            action: "course_applied",
+            message: "#{created_student.first_name} #{created_student.last_name} applied for #{created_student.course.name}",
+            read: false
+          )
           render json: { 
             message: "Student Created!",
-            f_name: created_student.first_name,
-            l_name: created_student.last_name,
-            phone: created_student.user.phone
+            first_name: created_student.first_name,
+            last_name: created_student.last_name,
+            phone: created_student.user.phone,
+            user_id: created_student.user_id,
+            course_id: created_student.course_id
           }, status: :created
         else
           render json: { error: "Error creating student!", info: created_student.errors.full_messages }, status: :unprocessable_entity
         end
       else
         render json: { error: "Error Creating User", info: created_user.errors.full_messages }, status: :unprocessable_entity
+      end
+    rescue => e
+      render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
+    end
+  end
+
+  # add_student_info
+  def add_student_info
+    begin
+      student = Student.find_by(user_id: params[:user_id])
+      if student
+
+        add_student_params = {}
+
+        # m_name_param
+        m_name_param = student_params[:middle_name].to_s
+        if m_name_param.blank?
+          render json: { errors: { middle_name: "Middle name required!"}}, status: :unprocessable_entity
+          return
+        else
+          m_name_param = m_name_param.to_s.gsub(/\s+/, '').capitalize
+          add_student_params[:middle_name] = m_name_param
+        end
+
+        # dob_param
+        dob_param = student_params[:date_of_birth].to_s
+        if dob_param.blank?
+          render json: { errors: { date_of_birth: "Date required!"}}, status: :unprocessable_entity
+          return
+        else
+          # date should not be in future
+          now = Date.current
+          parsed_date = Date.parse(dob_param)
+          if parsed_date > now
+            render json: { errors: { date_of_birth: "Date cannot be in future!"}}, status: :unprocessable_entity
+            return
+          end
+          add_student_params[:date_of_birth] = dob_param
+        end
+
+        # gender_param
+        gender_param = student_params[:gender].to_s.gsub(/\s+/, '').downcase
+        if gender_param.blank?
+          render json: { errors: {gender: "Gender required!"}}, status: :unprocessable_entity
+          return
+        else
+          valid_gender = ['male', 'female']
+          unless valid_gender.include?(gender_param)
+            render json: { errors: { gender: "Invalid gender! Select from '#{valid_gender.join(', ')}'"}}, status: :unprocessable_entity
+            return
+          end
+          add_student_params[:gender] = gender_param.to_s.gsub(/\s+/, '').capitalize
+        end
+
+        # country_param
+        country_param = student_params[:country].to_s.gsub(/\s+/, '').downcase
+        if country_param.blank?
+          render json: { errors: { country: "Country required!"}}, status: :unprocessable_entity
+          return
+        else
+          country_param = country_param.to_s.gsub(/\s+/, '').capitalize
+          add_student_params[:country] = country_param
+        end
+
+        cretaed_info = student.update(add_student_params)
+        if cretaed_info
+          Notification.create(
+            user: student.user,
+            action: 'student_created',
+            message: "Student #{student.first_name} #{student.last_name} created account.",
+            read: false
+          )
+          render json: { message: "Student profile created successfully"}, status: :ok
+        else
+          render json: { error: "Error creating user", info: student.errors.full_messages }, status: :unprocessable_entity
+        end
+      else
+        render json: { error: "Student not found!"}, status: :not_found
+        return
+      end
+    end
+  rescue => e
+    render json: { error: "Something went wrong", message: e.message }, status: :internal_server_error
+  end
+
+  # update_student_info
+  def update_student_info
+    begin
+      student = Student.find_by(user_id: params[:user_id])
+      if student
+        update_student_params = {}
+
+        # m_name_param
+        m_name_param = student_params[:middle_name].to_s.gsub(/\s+/, '').downcase
+        if m_name_param.present?
+          m_name_param = m_name_param.to_s.gsub(/\s+/, '').capitalize
+          update_student_params[:middle_name] = m_name_param
+        end
+
+        # dob_param
+        dob_param = student_params[:date_of_birth].to_s
+        if dob_param.present?
+          # date cannot be in future
+          now = Date.current
+          parsed_date = Date.parse(dob_param)
+          if parsed_date > now
+            render json: { errors: { date_of_birth: "Date cannot be in future!"}}, status: :unprocessable_entity
+            return
+          end
+          update_student_params[:date_of_birth] = dob_param
+        end
+
+        # gender_param
+        gender_param = student_params[:gender].to_s.gsub(/\s+/, '')
+        if gender_param.present?
+          valid_gender = ['male', 'female']
+          unless valid_gender.include?(gender_param)
+            render json: { errors: { gender: "Invalid gender. Select from '#{valid_gender.join(', ')}'"}}, status: :unprocessable_entity
+            return
+          end
+          update_student_params[:gender] = gender_param.to_s.gsub(/\s+/, '').capitalize
+        end
+
+        # country_param
+        country_param = student_params[:country].to_s.gsub(/\s+/, '').downcase
+        if country_param.present?
+          country_param = country_param.to_s.gsub(/\s+/, '').capitalize
+          update_student_params[:country] = country_param
+        end
+
+        # update_student_info
+        updated_info = student.update(update_student_params)
+        if updated_info
+          Notification.create(
+            user: student.user,
+            action: 'student_updated',
+            message: "Student #{student.first_name} #{student.last_name} updated account.",
+            read: false
+          )
+          render json: { message: "User info updated"}, status: :ok
+        else
+          render json: { error: "Error updating user info", info: student.errors.full_messages }, status: :unprocessable_entity
+        end
+
+      else
+        render json: { error: "Student not found!"}, status: :not_found
       end
     rescue => e
       render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
@@ -179,6 +335,9 @@ class Api::V1::StudentsController < ApplicationController
       if student
         # associated_user
         user = student.user
+
+        updated_user_param = {}
+        updated_student_params = {}
         # get params in the request body only
         # user_params
         # email_param
@@ -197,6 +356,8 @@ class Api::V1::StudentsController < ApplicationController
             render json: { errors: { email: "Email Exists!"}}, status: :unprocessable_entity
             return
           end
+
+          updated_user_param[:email] = email_param
         end
 
         # phone_param
@@ -215,6 +376,8 @@ class Api::V1::StudentsController < ApplicationController
             render json: { errors: { phone: "Phone Exists"}}, status: :unprocessable_entity
             return
           end
+
+          updated_user_param[:phone] = phone_param
         end
 
         # password_param and password_confirmation_param
@@ -243,6 +406,9 @@ class Api::V1::StudentsController < ApplicationController
             render json: { errors: { password: "Password should have at least 8 characters"}}, status: :unprocessable_entity
             return
           end
+
+          updated_user_param[:password] = password_param
+          updated_user_param[:password_confirmation] = password_confirmation_param
         else
           render json: { errors: { password: "Password and confirmation are required!"}}, status: :unprocessable_entity
           return
@@ -253,21 +419,18 @@ class Api::V1::StudentsController < ApplicationController
         f_name_param = student_params[:first_name].to_s
         if f_name_param.present?
           f_name_param = f_name_param.to_s.gsub(/\s+/, '').capitalize
+          updated_student_params[:first_name] = f_name_param
         end
 
         # l_name_param
         l_name_param = student_params[:last_name].to_s
         if l_name_param.present?
           l_name_param = l_name_param.to_s.gsub(/\s+/, '').capitalize
+          updated_student_params[:last_name] = l_name_param
         end
 
         # update_user
-        updated_user = user.update(
-          email: email_param,
-          phone: phone_param,
-          password: password_param,
-          password_confirmation: password_confirmation_param
-        )
+        updated_user = user.update(updated_user_param)
         if updated_user
           # create notification
           Notification.create(
@@ -277,10 +440,7 @@ class Api::V1::StudentsController < ApplicationController
             read: false
           )
           # update_student
-          updated_student = student.update(
-            first_name: f_name_param,
-            last_name: l_name_param
-          )
+          updated_student = student.update(updated_student_params)
           if updated_student
             render json: { message: "Student Updated"}, status: :ok
           else
@@ -323,6 +483,6 @@ class Api::V1::StudentsController < ApplicationController
   end
 
   def student_params
-    params.require(:student).permit(:first_name, :last_name, :user_id)
+    params.require(:student).permit(:first_name, :last_name, :middle_name, :gender, :country, :date_of_birth, :course_id, :user_id)
   end
 end

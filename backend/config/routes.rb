@@ -29,6 +29,9 @@ Rails.application.routes.draw do
       patch 'update_student/:id/', to: 'students#update_student'
       delete 'delete_student/:id/', to: 'students#delete_student'
 
+      patch 'add_student_info/:user_id', to: 'students#add_student_info'
+      patch 'update_student_info/:user_id', to: 'students#update_student_info'
+
       # courses
       post 'create_course/', to: 'courses#create_course'
       get 'all_courses/', to: 'courses#all_courses'
