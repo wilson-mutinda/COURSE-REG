@@ -69,7 +69,8 @@ class Api::V1::CoursesController < ApplicationController
         email = course.user.email
         flag = course.user.flag
         phone = course.user.phone
-        info = course.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone, flag: flag})
+        student_count = course.students.count
+        info = course.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone, flag: flag, student_count: student_count})
         render json: info, status: :ok
       else
         render json: { error: "Course not found!"}, status: :not_found
@@ -91,7 +92,8 @@ class Api::V1::CoursesController < ApplicationController
           email = course.user.email
           phone = course.user.phone
           flag = course.user.flag
-        course.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone, flag: flag})          
+          student_count = course.students.count
+        course.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone, flag: flag, student_count: student_count})          
         end
         render json: info, status: :ok
       end

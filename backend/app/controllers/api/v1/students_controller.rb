@@ -297,7 +297,8 @@ class Api::V1::StudentsController < ApplicationController
       if student
         email = student.user.email
         phone = student.user.phone
-        info = student.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone})
+        course_name = student.course.name
+        info = student.as_json(except: [:created_at, :updated_at, :user_id, :course_id]).merge({ email: email, phone: phone, course_name: course_name})
         render json: info, status: :ok
       else
         render json: { error: "Student Not Found!"}, status: :not_found
@@ -318,8 +319,9 @@ class Api::V1::StudentsController < ApplicationController
         info = students.map do |student|
           email = student.user.email
           phone = student.user.phone
+          course_name = student.course&.name
 
-        student.as_json(except: [:created_at, :updated_at, :user_id]).merge({ email: email, phone: phone})          
+        student.as_json(except: [:created_at, :updated_at, :user_id, :course_id]).merge({ email: email, phone: phone, course_name: course_name})          
         end
         render json: info, status: :ok
       end
