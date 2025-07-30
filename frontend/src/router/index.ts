@@ -11,7 +11,7 @@ import adminStudentPage from '@/pages/adminStudentPage.vue'
 import studentInfoPage from '@/pages/studentInfoPage.vue'
 import courseRegPage from '@/pages/courseRegPage.vue'
 import adminCoursePage from '@/pages/adminCoursePage.vue'
-
+import getUserRole from '@/sevices/auth'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -28,6 +28,27 @@ const router = createRouter({
     { path: '/student/course-reg', name: 'student/course-reg', component: courseRegPage },
     { path: '/admin-dashboard/courses', name: 'admin-dashboard-courses', component: adminCoursePage },
   ],
+});
+
+router.beforeEach((to) => {
+  // get token
+  const isAuthenticated = localStorage.getItem('access_token')
+  if (!isAuthenticated) return '/login'
+
+  const userRole = getUserRole();
+
+  const publicRoutes = ['/login', '/reset_password', '/create-account'];
+
+  if (publicRoutes.includes(to.path)) return true;
+
+  if (to.path.startsWith('/student') && userRole !== 'student') {
+    return `${userRole}-dashboard`;
+  }
+
+  if (to.path.startsWith('/admin') && userRole !== 'admin') {
+    return `${userRole}-dashboard`;
+  }
+  return true
 })
 
 export default router

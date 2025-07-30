@@ -39,7 +39,7 @@
                 <!-- navbar -->
                  <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white rounded-md shadow mb-4">
                     <!-- title -->
-                    <p class="text-2xl font-bold">Dashboard</p>
+                    <p class="text-2xl font-bold hidden md:block">Dashboard</p>
 
                     <!-- search, ntifications and -->
                      <div class="flex items-center gap-4">

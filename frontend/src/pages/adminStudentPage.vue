@@ -39,14 +39,14 @@
                 <!-- navbar -->
                  <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white rounded-md shadow mb-4">
                     <!-- title -->
-                    <p class="text-2xl font-bold">Dashboard</p>
+                    <p class="text-2xl font-bold hidden md:block">Dashboard</p>
 
                     <!-- search, ntifications and -->
                      <div class="flex items-center gap-4">
                         <!-- search bar -->
                          <div class=" flex rounded-full ring-1 gap-2 ring-green-300 p-2 hover:ring-red-300 bg-white">
                             <img src="/search.png" alt="search" width="20px">
-                            <input v-model="searchTerm" type="text" name="" id="" class="outline-none text-lg bg-transparent" placeholder="Search courses...">
+                            <input v-model="searchTerm" type="text" name="" id="" class="outline-none text-lg bg-transparent" placeholder="Search students...">
                          </div>
 
                          <!-- notification button -->
@@ -93,7 +93,31 @@
                  </div>
 
                  <!-- body -->
-                  <div class="">
+                  <div class="flex justify-between mr-5">
+                    <p class="text-4xl font-bold">All Students</p>
+                    <button @click="goToRegisterPage" type="button" class="bg-green-500 rounded-md text-white text-lg p-2">
+                        <p>Create Student</p>
+                    </button>
+                  </div>
+                  <div v-if="filteredStudents.length > 0" class="">
+                    <div v-for="(student, index) in filteredStudents" :key="index" class="bg-white mt-4 rounded-md p-4 w-full max-w-md">
+                        <div class="flex items-center gap-2">
+                            <p class="text-2xl">Name:</p>
+                            <p class="text-xl text-gray-500">{{ student.first_name }} {{ student.last_name }} </p>
+                        </div>
+                        <div class="flex gap-4 mt-4">
+                            <p class="text-xl">Course:</p>
+                            <p>{{ student.course_name }}</p>
+                        </div>
+                        <div class="">
+                            <button type="button" @click="deleteStudent(student)">
+                                <img src="/delete.png" alt="delete" width="30px">
+                            </button>
+                        </div>
+                    </div>
+                  </div>
+                  <div v-else class="text-center text-gray-600 py-4">
+                    No Students found
                   </div>
             </div>
         </div>
@@ -146,12 +170,22 @@ export default{
 
             readNotification: false,
 
-            showNotificationModal: false
+            showNotificationModal: false,
+
+            allStudents: [],
+
+            searchTerm: ''
 
         };
     },
 
     computed: {
+        // filteredStudents
+        filteredStudents(){
+            return this.allStudents.filter(student => 
+                student.first_name.toLowerCase().includes(this.searchTerm.toLowerCase())
+            )
+        },
         // unreadNotifications
         unreadNotifications(){
             return this.notifications.filter(n => 
@@ -165,7 +199,34 @@ export default{
     },
 
     methods: {
+        // goToRegister
+        goToRegisterPage(){
+            this.$router.push('/create-account')
+        },
 
+        // deleteStudent
+        async deleteStudent(student){
+            try {
+                const confirmDelete = window.confirm(`Delete ${student.first_name}`);
+                if (!confirmDelete) return
+                await api.delete(`delete_student/${student.id}`);
+                this.allStudents = this.allStudents.filter(s => 
+                    s.id !== student.id
+                )
+            } catch (error) {
+                console.error('Error deleting student:', error);
+            }
+        },
+        // fetchAllStudents
+        async fetchAllStudents(){
+            try {
+                const response = await api.get('all_students');
+                this.allStudents = response.data
+            } catch (error) {
+                console.error('Failed to fetch students:', error);
+                this.students = []
+            }
+        },
         // goToStudentPage
         goToDashboardPage(){
             this.$router.push('/admin-dashboard')
@@ -245,20 +306,11 @@ export default{
         fetchFlag(){
             this.flag = localStorage.getItem('flag')
         },
-
-        // fetch all students
-        async fetchAllStudents(){
-            try {
-                const response = await api.get('all_students')
-                this.studentCount = response.data.length
-            } catch (error) {
-                console.error('Failed to fetch students', error);
-            }
-        },
-
     },
 
     async mounted(){
+
+        this.fetchAllStudents();
 
         this.showNotifications();
 
@@ -271,9 +323,6 @@ export default{
 
         // allCourses
         await this.fetchAllCourses();
-
-        // allStudents
-        await this.fetchAllStudents();
 
         // allCourses
         await this.AllCourses();

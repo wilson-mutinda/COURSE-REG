@@ -39,7 +39,7 @@
                 <!-- navbar -->
                  <div class="flex justify-between items-center p-4 sticky top-0 z-40 bg-white rounded-md shadow mb-4">
                     <!-- title -->
-                    <p class="text-2xl font-bold">Dashboard</p>
+                    <p class="text-2xl font-bold hidden md:block">Dashboard</p>
 
                     <!-- search, ntifications and -->
                      <div class="flex items-center gap-4">
@@ -94,20 +94,101 @@
 
                  <!-- body -->
                   <div class="px-4 py-6">
-                    <div class="mb-6">
-                        <p class="text-4xl font-semibold mb-2">All Courses</p>
-                        <span class="text-lg text-gray-600">Manage, edit and organize courses</span>
+                    <div class="mb-6 flex justify-between mr-2">
+                        <div class="">
+                            <p class="text-4xl font-semibold mb-2">All Courses</p>
+                            <span class="text-lg text-gray-600">Manage, edit and organize courses</span>
+                        </div>
+
+                        <div class="flex items-center gap-10">
+                            <button @click="showActive" type="button" :class="buttonActive ? 'bg-purple-700 px-4 py-2 text-lg text-white rounded-md' : 'bg-purple-300 px-4 py-2 text-lg text-white rounded-md'">Active</button>
+                            <button @click="showInactive" type="button" :class="buttonInactive ? 'bg-pink-700 px-4 py-2 text-lg text-white rounded-md' : 'bg-pink-300 px-4 py-2 text-lg text-white rounded-md'">Inactive</button>
+                            <button @click="showAll" type="button" :class="buttonAll ? 'bg-gray-700 px-4 py-2 text-lg text-white rounded-md' : 'bg-gray-300 px-4 py-2 text-lg text-white rounded-md'">All</button>
+                        </div>
+
+                        <div class="">
+                            <button type="button" @click="openCreateCourseModal" class="bg-green-500 px-4 py-2 rounded-md text-white text-xl">Add Course</button>
+                        </div>
+
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div v-for="(course, index) in allCourses" :key="index" class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300">
-                            <p class="text-xl font-medium text-gray-800">{{ course.name }}</p>
-                            <p class="text-sm text-gray-500">{{ course.status }}</p>
+                        <div v-if="filteredCourses().length > 0" v-for="(course, index) in filteredCourses()" :key="index" class="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow duration-300">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xl font-medium text-gray-800">{{ course.name }}</p>
+                                <p class="text-sm text-gray-500 rounded-full bg-blue-400 py-2 px-4">{{ course.status }}</p>
+                            </div>
+                            <div class="">
+                                <span>{{ course.category }}</span>
+                            </div>
+
+                            <div class="flex gap-2 mt-6">
+                                <img src="/study.png" alt="student" width="20px">
+                                <p class="text-lg text-gray-400">{{ course.student_count }} students enrolled</p>
+                            </div>
+                            <div class="flex items-center justify-end gap-4 mt-4">
+                                <button type="button" @click="openUpdateCourseModal(course)">
+                                    <img src="/edit.png" alt="edit" width="30px"></img>
+                                </button>
+                                <button type="button" @click="deleteCourse(course)">
+                                    <img src="/delete.png" alt="delete" width="30px"></img>
+                                </button>
+                            </div>
+                        </div>
+                        <div v-else class="col-span-full text-center text-gray-600 py-8">
+                            No Matching courses found!
                         </div>
                     </div>
                   </div>
             </div>
         </div>
     </div>
+
+    <div v-if="showCreateCourseModal" class="bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center">
+        <div class="bg-white w-full rounded-md max-w-md p-2 relative">
+            <form @submit.prevent="createCourse" action="">
+                <div class="absolute right-2 top-1">
+                    <p v-if="errors.general" class="text-sm text-red-500">{{ errors.general }}</p>
+                    <button type="button" @click="closeCreateCourseModal">
+                        <img src="/close.png" alt="close" width="12px">
+                    </button>
+                </div>
+                <p class="text-center text-xl">{{ courseId ? "Update Course" : "Create Course" }}</p>
+                <div class="p-2">
+                    <div class="">
+                        <label class="block text-xl" for="name">Name</label>
+                        <input v-model="name" class="rounded-md ring-1 mt-1 mb-2 p-2 w-full ring-green-400 hover:ring-green-700 outline-none text-xl" type="text" name="name" id="">
+                        <p v-if="errors.name" class="text-sm text-red-500">{{ errors.name }}</p>
+                    </div>
+                    <div class="">
+                        <label class="block text-xl" for="category">Category</label>
+                        <select v-model="category" class="rounded-md ring-1 mt-1 mb-2 p-2 w-full ring-green-400 hover:ring-green-700 outline-none text-xl" name="category" id="">
+                            <option value="">-- Select Category --</option>
+                            <option value="data">Data</option>
+                            <option value="cyber security">Cybersecurity</option>
+                            <option value="creative tech">Creative Tech</option>
+                            <option value="career">Career</option>
+                        </select>
+                        <p v-if="errors.category" class="text-sm text-red-500">{{ errors.category }}</p>
+                    </div>
+                    <div class="">
+                        <label class="block text-xl" for="duration">Duration</label>
+                        <input v-model="duration" class="rounded-md ring-1 mt-1 mb-2 p-2 w-full ring-green-400 hover:ring-green-700 outline-none text-lg" type="text" name="duration" id="">
+                        <p v-if="errors.duration" class="text-sm text-red-500">{{ errors.duration }}</p>
+                    </div>
+                </div>
+
+                <div v-if="courseId" class="mb-3">
+                    <button type="button" @click="toggleCourseStatus()" class="text-white  text-lg rounded-md p-2 bg-yellow-500">{{ courseStatus === "Active" ? "Deactivate" : "Activate" }}</button>
+                </div>
+                
+                <div class="flex items-center justify-between mr-6 ml-5">
+                    <button type="button" class="rounded-md bg-gray-600 py-2 px-4 hover:bg-gray-900 text-white text-lg" @click="closeCreateCourseModal">Close</button>
+                    <button type="submit" class="rounded-md bg-blue-600 py-2 px-4 hover:bg-blue-900 text-white text-lg">{{ courseId ? "Update" : "Create" }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </template>
 
 <script>
@@ -158,7 +239,31 @@ export default{
 
             showNotificationModal: false,
 
-            allCourses: []
+            allCourses: [],
+
+            showCreateCourseModal: false,
+
+            showUpdateCourseModal: false,
+
+            name: '',
+            category: '',
+            duration: '',
+
+            courseId: '',
+
+            courseStatus: '',
+
+            errors: {},
+
+            searchTerm: '',
+
+            showCourseCreatedToast: false,
+
+            selectedStatus: 'All',
+
+            buttonActive: false,
+            buttonAll: false,
+            buttonInactive: false,
 
         };
     },
@@ -177,6 +282,132 @@ export default{
     },
 
     methods: {
+
+        // showActive
+        showActive(){
+            this.buttonActive = true,
+            this.buttonAll = false
+            this.buttonInactive = false
+            this.selectedStatus = 'Active'
+        },
+
+        // showInactive
+        showInactive(){
+            this.buttonInactive = true
+            this.buttonAll = false
+            this.buttonActive = false
+            this.selectedStatus = 'Inactive'
+        },
+
+        // showAll
+        showAll(){
+            this.buttonAll = true
+            this.buttonActive = false
+            this.buttonInactive = false
+            this.selectedStatus = 'All'
+        },
+
+        // toggleCourseStatus
+        async toggleCourseStatus(){
+            const newStatus = this.courseStatus === 'Active' ? 'Inactive' : 'Active'
+            await api.patch(`update_course/${this.courseId}`, {
+                status: newStatus
+            });
+            this.courseStatus = newStatus;
+        },
+
+        // openCreateCourseModal
+        openCreateCourseModal(){
+            this.errors = {}
+            this.clearForm();
+            this.courseId = '';
+            this.showCreateCourseModal = true
+        },
+
+        // openUpdateCourseModal
+        async openUpdateCourseModal(course){
+            this.showCreateCourseModal = true;
+            this.errors = {};
+            this.courseId = course.id
+            const updatedCourse = await api.get(`single_course/${course.id}`)
+            this.name = updatedCourse.data.name
+            this.category = updatedCourse.data.category
+            this.duration = updatedCourse.data.duration
+            this.courseStatus = updatedCourse.data.status
+        },
+
+        // filteredCourses
+        filteredCourses(){
+            return this.allCourses.filter(course =>{
+                const matchName = course.name.toLowerCase().includes(this.searchTerm.toLowerCase());
+                const matchesStatus = this.selectedStatus === 'All' || course.status === this.selectedStatus;
+                return matchName && matchesStatus
+            }
+            )
+        },
+
+        // clearForm
+        clearForm(){
+            this.name = '',
+            this.category = '',
+            this.duration = ''
+        },
+
+        // createCourse
+        async createCourse(){
+            this.errors = {};
+            const payload = {
+                course: {
+                    name: this.name,
+                    category: this.category,
+                    duration: this.duration,
+                }
+            };
+            
+            try {
+                if (this.courseId) {
+                    const response = await api.patch(`update_course/${this.courseId}`, payload)
+                } else {
+                    const response = await api.post('create_course', payload)
+                }
+    
+                this.clearForm();
+                this.showCreateCourseModal = false;
+    
+                this.showCourseCreatedToast = true;
+                setTimeout(() => {
+                    this.showCourseCreatedToast = false
+                }, 2000);
+    
+                this.fetchAllCourses();
+                this.errors = {};
+            } catch (error) {
+                if (error.response && error.response.data && error.response.data.errors) {
+                    this.errors = error.response.data.errors
+                } else {
+                    this.errors = { general: "Something went wrong!"}
+                }
+            }
+        },
+
+        // closeCreateCourseModal
+        closeCreateCourseModal(){
+            this.showCreateCourseModal = false;
+            this.fetchAllCourses();
+        },
+
+        // deleteCourse
+        async deleteCourse(courseObj){
+            try {
+                const confirmDelete = window.confirm(`Want to delete ${courseObj.name}?`)
+                if (confirmDelete) {
+                    await api.delete(`delete_course/${courseObj.id}`)
+                    this.fetchAllCourses()
+                }
+            } catch (error) {
+                console.error('Error deleteing course:', error);
+            }
+        },
 
         // fetchAllCourses
         async fetchAllCourses(){
@@ -279,6 +510,9 @@ export default{
 
         // allCourses
         await this.fetchAllCourses();
+
+        // filteredCourses
+        this.filteredCourses()
 
         // allStudents
         await this.fetchAllStudents();
