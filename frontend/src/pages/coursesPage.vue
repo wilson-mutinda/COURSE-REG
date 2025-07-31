@@ -212,7 +212,7 @@ export default {
         // filteredCourses
         filteredCourses(){
             if (this.selectedCategories.length === 0){
-                return this.allCourses;
+                return this.allCourses.filter(c => c.status === 'Active')
             }
             return this.allCourses.filter(course => 
                 this.selectedCategories.includes(course.category.toLowerCase())
@@ -220,7 +220,10 @@ export default {
         },
 
         threeCourses() {
-            return this.filteredCourses.slice(0, this.courseLimit)
+            const courseMatch = this.filteredCourses.slice(0, this.courseLimit)
+            
+            return courseMatch
+
         }
     },
 

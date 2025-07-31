@@ -95,13 +95,14 @@
                  <!-- body -->
                   <div class="flex justify-between mr-5">
                     <p class="text-4xl font-bold">All Students</p>
-                    <button @click="goToRegisterPage" type="button" class="bg-green-500 rounded-md text-white text-lg p-2">
+                    <button @click="openModal" type="button" class="bg-green-500 rounded-md text-white text-lg p-2">
                         <p>Create Student</p>
                     </button>
                   </div>
                   <div v-if="filteredStudents.length > 0" class="">
                     <div v-for="(student, index) in filteredStudents" :key="index" class="bg-white mt-4 rounded-md p-4 w-full max-w-md">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 relative">
+                            <span class="absolute right-2 rounded-full bg-orange-400 px-4 py-1 text-white">{{ student.status }}</span>
                             <p class="text-2xl">Name:</p>
                             <p class="text-xl text-gray-500">{{ student.first_name }} {{ student.last_name }} </p>
                         </div>
@@ -109,7 +110,10 @@
                             <p class="text-xl">Course:</p>
                             <p>{{ student.course_name }}</p>
                         </div>
-                        <div class="">
+                        <div class="flex justify-end gap-4">
+                            <button type="button" @click="updateStudentModal(student)">
+                                <img src="/edit.png" alt="edit" width="30px">
+                            </button>
                             <button type="button" @click="deleteStudent(student)">
                                 <img src="/delete.png" alt="delete" width="30px">
                             </button>
@@ -122,6 +126,120 @@
             </div>
         </div>
     </div>
+
+    <!-- student create modal -->
+     <div v-if="showStudentCreateModal" class="bg-black bg-opacity-50 fixed inset-0 flex items-center justify-center">
+        <div class="bg-white rounded-md p-4 w-full max-w-[50%] relative">
+            <form @submit.prevent="createStudent" action="">
+                <div class="absolute right-3">
+                    <button type="button" @click="closeStudentModal">
+                        <img src="/close.png" alt="close" width="20px">
+                    </button>
+                </div>
+                <span v-if="errors.general" class="text-sm text-red-500">{{ errors.general }}</span>
+                <p class="text-2xl text-center mb-3">{{ studentId ? "Update Student" : "Create Student" }}</p>
+
+                <div class="">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="first_name">FirstName</label>
+                            <input v-model="first_name" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="text" name="first_name" id="">
+                            <span v-if="errors.first_name" class="text-sm text-red-500">{{ errors.first_name }}</span>
+                        </div>
+
+                        <div class="">
+                            <label class="text-xl mb-3" for="last_name">LastName</label>
+                            <input v-model="last_name" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="text" name="last_name" id="">
+                            <span v-if="errors.last_name" class="text-sm text-red-500">{{ errors.last_name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="middle_name">MiddleName</label>
+                            <input v-model="middle_name" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="text" name="middle_name" id="">
+                            <span v-if="errors.middle_name" class="text-sm text-red-500">{{ errors.middle_name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="email">Email</label>
+                            <input v-model="email" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="email" name="email" id="">
+                            <span v-if="errors.email" class="text-sm text-red-500">{{ errors.email }}</span>
+                        </div>
+
+                        <div class="">
+                            <label class="text-xl mb-3" for="phone">Phone</label>
+                            <input v-model="phone" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="tel" name="phone" id="">
+                            <span v-if="errors.phone" class="text-sm text-red-500">{{ errors.phone }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="date_of_birth">D.O.B</label>
+                            <input v-model="date_of_birth" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="date" name="date_of_birth" id="">
+                            <span v-if="errors.date_of_birth" class="text-sm text-red-500">{{ errors.date_of_birth }}</span>
+                        </div>
+
+                        <div class="">
+                            <label class="text-xl mb-3" for="gender">Gender</label>
+                            <select v-model="gender" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" name="gender" id="">
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                            <span v-if="errors.gender" class="text-sm text-red-500">{{ errors.gender }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="country">Country</label>
+                            <select v-model="country" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" name="country" id="">
+                                <option value="">-- Select Country --</option>
+                                <option value="Kenya">Kenya</option>
+                            </select>
+                            <span v-if="errors.country" class="text-sm text-red-500">{{ errors.country }}</span>
+                        </div>
+
+                        <div class="">
+                            <label class="text-xl mb-3" for="course">Course</label>
+                            <select v-model="course" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full">
+                                <option v-for="courseOption in activeCourses" :key="courseOption.id" :value="courseOption.id">
+                                    {{ courseOption.name }}
+                                </option>
+                            </select>
+                            <span v-if="errors.course" class="text-sm text-red-500">{{ errors.course }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div class="">
+                            <label class="text-xl mb-3" for="password">Password</label>
+                            <input v-model="password" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="password" name="password" id="">
+                            <span v-if="errors.password" class="text-sm text-red-500">{{ errors.password }}</span>
+                        </div>
+
+                        <div class="">
+                            <label class="text-xl mb-3" for="password_confirmation">Password Confirmation</label>
+                            <input v-model="password_confirmation" class="rounded-md ring-1 p-2 ring-green-600 hover:ring-green-900 outline-none w-full" type="password" name="password_confirmation" id="">
+                            <span v-if="errors.password_confirmation" class="text-sm text-red-500">{{ errors.password_confirmation }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mr-6 ml-6">
+                        <button type="button" v-if="studentId" @click="changeStatus" class="bg-orange-600 rounded-md px-4 py-2 text-white text-lg hover:bg-orange-900">{{ courseStatus === 'Active' ? 'Deactivate' : 'Activate' }}</button>
+                        <button type="button" class="bg-gray-700 rounded-md px-4 py-2 text-white text-lg hover:bg-gray-900" @click="closeStudentModal">Close</button>
+                        <button type="submit" class="bg-blue-700 rounded-md px-4 py-2 text-white hover:bg-blue-900">{{ studentId ? "Update" : "Create" }}</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+     </div>
 </template>
 
 <script>
@@ -174,12 +292,41 @@ export default{
 
             allStudents: [],
 
-            searchTerm: ''
+            searchTerm: '',
+
+            showStudentCreateModal: false,
+
+            first_name: '',
+            last_name: '',
+            middle_name: '',
+            email: '',
+            phone: '',
+            date_of_birth: '',
+            gender: '',
+            country: '',
+            course: '',
+            password: '',
+            password_confirmation: '',
+
+            errors: {},
+
+            courses: [],
+
+            studentId: null,
+
+            courseStatus: 'Active'
 
         };
     },
 
     computed: {
+        // activeCourses
+        activeCourses(){
+            return this.courses.filter(c => 
+                c.status === 'Active'
+            )
+        },
+
         // filteredStudents
         filteredStudents(){
             return this.allStudents.filter(student => 
@@ -199,9 +346,143 @@ export default{
     },
 
     methods: {
-        // goToRegister
-        goToRegisterPage(){
-            this.$router.push('/create-account')
+
+        // showStudentStatus
+        shoeStudentStatus(){
+            const student = this.allStudents
+        },
+
+        // changeStatus
+        async changeStatus(){
+            const student = this.allStudents.find(s => 
+                s.id === this.studentId
+            );
+            if (student) {
+                const status = student.status
+                this.courseStatus = status === 'Active' ? 'Inactive' : 'Active'
+                await api.patch(`update_status/${student.id}`, {
+                    student: {
+                        status: this.courseStatus
+                    }
+                });
+                this.showStudentCreateModal = false
+                this.fetchAllStudents()
+            }
+        },
+
+        // opemModal
+        openModal(){
+            this.clearForm()
+            this.showStudentCreateModal = true;
+            this.studentId = null
+        },
+
+        // updateStudentModal
+        async updateStudentModal(student) {
+            this.showStudentCreateModal = true;
+            const response = await api.get(`single_student/${student.id}`);
+
+            this.studentId = response.data.id
+            const courseName = response.data.course_name
+            const courseMatch = this.courses.find(c => c.name === courseName)
+
+            this.first_name = response.data.first_name
+            this.last_name = response.data.last_name
+            this.middle_name = response.data.middle_name
+            this.email = response.data.email
+            this.phone = response.data.phone
+            this.date_of_birth = response.data.date_of_birth
+            this.gender = response.data.gender
+            this.country = response.data.country
+            this.course = courseMatch ? courseMatch.id : null
+        },
+
+        // clearForm
+        clearForm(){
+            this.first_name = '';
+            this.last_name = '';
+            this.middle_name = '';
+            this.email = '';
+            this.phone = '';
+            this.date_of_birth = '';
+            this.gender = '';
+            this.country = '';
+            this.country = '';
+            this.course = '';
+            this.password = '';
+            this.password_confirmation = '';
+        },
+
+        // fetchAllcourses
+        async fetchAllCourses(){
+            const response = await api.get('all_courses')
+            this.courses = response.data
+        },
+
+        // createStudent
+        async createStudent(){
+
+            this.errors = {};
+
+            const payload1 = {
+                user: {
+                    email: this.email,
+                    phone: this.phone,
+                    password: this.password,
+                    password_confirmation: this.password_confirmation
+                },
+                student: {
+                    first_name: this.first_name,
+                    last_name: this.last_name,
+                    course_id: this.course
+                }
+            };
+            const payload2 = {
+                student: {
+                    middle_name: this.middle_name,
+                    date_of_birth: this.date_of_birth,
+                    gender: this.gender,
+                    country: this.country
+                }               
+            };
+
+            try {
+                if (this.studentId) {
+                    const response1 = await api.patch(`update_student/${this.studentId}`, payload1);
+                    const studentResponse = await api.get(`single_student/${this.studentId}`);
+                    const userId = studentResponse.data.user_id;
+
+                    await api.patch(`update_student_info/${userId}`, payload2)
+                } else {
+                    const response1 = await api.post('create_student', payload1)
+                    const userId = response1.data.user_id
+        
+                    const response2 = await api.patch(`add_student_info/${userId}`, payload2);
+                }
+                this.clearForm();
+                this.showStudentCreateModal = false;
+                this.errors = {};
+                this.fetchAllStudents();
+            } catch (error) {
+                if (error.response && error.response.data && error.response.data.errors) {
+                    this.errors = error.response.data.errors
+                } else {
+                    this.errors = { general: "Something went wrong!"}
+                }
+            }
+        },
+
+        // closeModal
+        closeStudentModal(){
+            this.errors = {}
+            this.showStudentCreateModal = false;
+            this.studentId = null;
+            this.fetchAllStudents();
+        },
+
+        // openStudentModal
+        openStudentModal() {
+            this.showStudentCreateModal = true;
         },
 
         // deleteStudent
