@@ -9,6 +9,7 @@ Rails.application.routes.draw do
       # users
       post 'create_user/', to: 'users#create_user'
       patch 'update_user/:id/', to: 'users#update_user'
+      delete 'delete_user/:id', to: 'users#delete_user'
 
       # user_login
       post 'user_login/', to: 'users#user_login'
@@ -31,6 +32,8 @@ Rails.application.routes.draw do
 
       patch 'add_student_info/:user_id', to: 'students#add_student_info'
       patch 'update_student_info/:user_id', to: 'students#update_student_info'
+
+      patch 'update_status/:id', to: 'students#update_status'
 
       # courses
       post 'create_course/', to: 'courses#create_course'

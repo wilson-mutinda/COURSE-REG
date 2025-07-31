@@ -120,6 +120,23 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  # delete_user
+  def delete_user
+    begin
+      user = User.find_by(id: params[:id])
+      if user
+        Notification.where(user_id: user.id).delete_all
+        email = user.email
+        user.destroy
+        render json: { message: "#{email} deleted successfully"}, status: :ok
+      else
+        render json: { errors: { user: "User not found!"}}, status: :not_found
+      end
+    rescue => e
+      render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
+    end
+  end
+
   # user_login
   def user_login
     begin

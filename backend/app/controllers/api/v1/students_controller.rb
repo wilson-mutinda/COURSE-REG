@@ -116,7 +116,8 @@ class Api::V1::StudentsController < ApplicationController
           first_name: f_name_param,
           last_name: l_name_param,
           user_id: created_user.id,
-          course_id: course_id_param
+          course_id: course_id_param,
+          status: 'Active'
         )
         if created_student
           Notification.create(
@@ -251,7 +252,7 @@ class Api::V1::StudentsController < ApplicationController
         end
 
         # gender_param
-        gender_param = student_params[:gender].to_s.gsub(/\s+/, '')
+        gender_param = student_params[:gender].to_s.gsub(/\s+/, '').downcase
         if gender_param.present?
           valid_gender = ['male', 'female']
           unless valid_gender.include?(gender_param)
@@ -297,8 +298,8 @@ class Api::V1::StudentsController < ApplicationController
       if student
         email = student.user.email
         phone = student.user.phone
-        course_name = student.course.name
-        info = student.as_json(except: [:created_at, :updated_at, :user_id, :course_id]).merge({ email: email, phone: phone, course_name: course_name})
+        course_name = student.course&.name
+        info = student.as_json(except: [:created_at, :updated_at, :course_id]).merge({ email: email, phone: phone, course_name: course_name})
         render json: info, status: :ok
       else
         render json: { error: "Student Not Found!"}, status: :not_found
@@ -321,7 +322,7 @@ class Api::V1::StudentsController < ApplicationController
           phone = student.user.phone
           course_name = student.course&.name
 
-        student.as_json(except: [:created_at, :updated_at, :user_id, :course_id]).merge({ email: email, phone: phone, course_name: course_name})          
+        student.as_json(except: [:created_at, :updated_at, :course_id]).merge({ email: email, phone: phone, course_name: course_name})          
         end
         render json: info, status: :ok
       end
@@ -431,6 +432,13 @@ class Api::V1::StudentsController < ApplicationController
           updated_student_params[:last_name] = l_name_param
         end
 
+        # status_param
+        status_param = student_params[:status].to_s
+        if status_param.present?
+          status_param = status_param.to_s.gsub(/\s+/, '').capitalize
+          updated_student_params[:status] = status_param
+        end
+
         # update_user
         updated_user = user.update(updated_user_param)
         if updated_user
@@ -444,7 +452,10 @@ class Api::V1::StudentsController < ApplicationController
           # update_student
           updated_student = student.update(updated_student_params)
           if updated_student
-            render json: { message: "Student Updated"}, status: :ok
+            render json: { 
+              message: "Student Updated",
+              user_id: user.id
+            }, status: :ok
           else
             render json: { error: "Error Updating Student!"}, status: :unprocessable_entity
           end
@@ -456,6 +467,25 @@ class Api::V1::StudentsController < ApplicationController
       end
     rescue => e
       render json: { error: "Something went wrong!", message: e.message }, status: :internal_server_error
+    end
+  end
+
+  # update_status
+  def update_status
+    begin
+      student = Student.find_by(id: params[:id])
+      if student
+        new_status = student_params[:status].to_s.gsub(/\s+/, '').capitalize
+        if student.update(status: new_status)
+          render json: { message: "Status Updated"}, status: :ok
+        else
+          render json: { error: "Error updating status", info: student.errors.full_messages }, status: :unprocessable_entity
+        end
+      else
+        render json: { errors: { student: "Student Not Found"}}, status: :not_found
+      end
+    rescue => e
+      render json: { error: "Something went wrong", message: e.message }, status: :internal_server_error
     end
   end
 
@@ -488,6 +518,6 @@ class Api::V1::StudentsController < ApplicationController
   end
 
   def student_params
-    params.require(:student).permit(:first_name, :last_name, :middle_name, :gender, :country, :date_of_birth, :course_id, :user_id)
+    params.require(:student).permit(:first_name, :last_name, :middle_name, :gender, :country, :date_of_birth, :course_id, :status, :user_id)
   end
 end
