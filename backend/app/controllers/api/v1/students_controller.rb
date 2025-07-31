@@ -466,6 +466,9 @@ class Api::V1::StudentsController < ApplicationController
       if student
         user = student.user
         email = user.email
+
+        # delete notification
+        Notification.where(user_id: user.id).delete_all
         # delete student first
         student.destroy
         user.destroy
