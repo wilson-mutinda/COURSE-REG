@@ -1,9 +1,7 @@
 // getUserRole
-
-const getUserRole = (): string | null => {
-    const token = localStorage.getItem('access_token');
-
-    if (!token) return null;
+export const getUserRole = (): string | null => {
+    const token = localStorage.getItem('access_token')
+    if (!token) return null
 
     try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -13,5 +11,3 @@ const getUserRole = (): string | null => {
         return null
     }
 }
-
-export default getUserRole

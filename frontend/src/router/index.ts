@@ -11,7 +11,7 @@ import adminStudentPage from '@/pages/adminStudentPage.vue'
 import studentInfoPage from '@/pages/studentInfoPage.vue'
 import courseRegPage from '@/pages/courseRegPage.vue'
 import adminCoursePage from '@/pages/adminCoursePage.vue'
-import getUserRole from '@/sevices/auth'
+import { getUserRole } from '@/sevices/auth'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -31,16 +31,15 @@ const router = createRouter({
 });
 
 router.beforeEach((to) => {
-  // get token
   const isAuthenticated = localStorage.getItem('access_token')
+
+  const publicRoutes = ['/login', '/reset_password', 'create-account'];
   if (!isAuthenticated) return '/login'
 
+  if (publicRoutes.includes(to.path)) return true
+
   const userRole = getUserRole();
-
-  const publicRoutes = ['/login', '/reset_password', '/create-account'];
-
-  if (publicRoutes.includes(to.path)) return true;
-
+  
   if (to.path.startsWith('/student') && userRole !== 'student') {
     return `${userRole}-dashboard`;
   }
@@ -48,6 +47,7 @@ router.beforeEach((to) => {
   if (to.path.startsWith('/admin') && userRole !== 'admin') {
     return `${userRole}-dashboard`;
   }
+
   return true
 })
 
