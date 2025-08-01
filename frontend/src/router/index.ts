@@ -30,25 +30,33 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to) => {
-  const isAuthenticated = localStorage.getItem('access_token')
-
-  const publicRoutes = ['/login', '/reset_password', 'create-account'];
-  if (!isAuthenticated) return '/login'
-
-  if (publicRoutes.includes(to.path)) return true
-
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = localStorage.getItem('access_token');
+  const publicRoutes = ['/login', '/reset_password', '/create-account'];
   const userRole = getUserRole();
-  
+
+  // Allow public routes
+  if (publicRoutes.includes(to.path)) {
+    return next();
+  }
+
+  // redirect unauthenticated users
+  if (!isAuthenticated) {
+    return next('/login');
+  }
+
+  // role-based routing
   if (to.path.startsWith('/student') && userRole !== 'student') {
-    return `${userRole}-dashboard`;
+    return next(`/${userRole}-dashboard`);
   }
 
   if (to.path.startsWith('/admin') && userRole !== 'admin') {
-    return `${userRole}-dashboard`;
+    return next(`/${userRole}-dashboard`);
   }
 
-  return true
+  // allow navigation
+  next();
+  
 })
 
 export default router
