@@ -34,13 +34,23 @@ class Api::V1::CoursesController < ApplicationController
         duration_param = duration_param.to_s.strip.titleize
       end
 
+      # price_param
+      price_param = course_params[:price].to_i
+      if price_param.blank?
+        render json: { errors: { price: "Price Needed!"}}, status: :unprocessable_entity
+        return
+      else
+        price_param = price_param.to_i
+      end
+
       # create_course
       created_course = Course.create(
         user_id: @current_user_id,
         name: name_param,
         category: category_param,
         duration: duration_param,
-        status: 'Active'
+        status: 'Active',
+        price: price_param
       )
       if created_course
         Notification.create(
@@ -138,6 +148,13 @@ class Api::V1::CoursesController < ApplicationController
           updated_params[:status] = status_param
         end
 
+        # price_param
+        price_param = course_params[:price].to_i
+        if price_param.present?
+          price_param = price_param.to_i
+          updated_params[:price] = price_param
+        end
+
         # update_course
         updated_course = course.update( updated_params)
         if updated_course
@@ -219,6 +236,6 @@ class Api::V1::CoursesController < ApplicationController
   end
 
   def course_params
-    params.require(:course).permit(:name, :category, :duration, :status, :user_id)
+    params.require(:course).permit(:name, :category, :duration, :status, :price, :user_id)
   end
 end
