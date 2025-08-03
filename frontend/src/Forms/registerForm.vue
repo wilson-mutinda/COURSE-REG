@@ -99,6 +99,10 @@ export default {
         async createAccount() {
             this.errors = {}
             const courseId = localStorage.getItem('course_id')
+            if (!courseId) {
+                throw new Error('Please select a course first');
+            }
+            
             const payload = {
                 user: {
                     email: this.email,

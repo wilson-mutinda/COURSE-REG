@@ -117,8 +117,9 @@
                                 <p class="text-xl font-medium text-gray-800">{{ course.name }}</p>
                                 <p class="text-sm text-gray-500 rounded-full bg-blue-400 py-2 px-4">{{ course.status }}</p>
                             </div>
-                            <div class="">
+                            <div class="mt-3 flex items-center justify-between">
                                 <span>{{ course.category }}</span>
+                                <p class="font-bold">Cost: {{ course.price }}</p>
                             </div>
 
                             <div class="flex gap-2 mt-6">
@@ -174,6 +175,11 @@
                         <label class="block text-xl" for="duration">Duration</label>
                         <input v-model="duration" class="rounded-md ring-1 mt-1 mb-2 p-2 w-full ring-green-400 hover:ring-green-700 outline-none text-lg" type="text" name="duration" id="">
                         <p v-if="errors.duration" class="text-sm text-red-500">{{ errors.duration }}</p>
+                    </div>
+                    <div class="">
+                        <label class="block text-xl" for="price">Price</label>
+                        <input v-model="price" class="rounded-md ring-1 mt-1 mb-2 p-2 w-full ring-green-400 hover:ring-green-700 outline-none text-lg" type="number" name="price" id="">
+                        <p v-if="errors.price" class="text-sm text-red-500">{{ errors.price }}</p>
                     </div>
                 </div>
 
@@ -248,6 +254,7 @@ export default{
             name: '',
             category: '',
             duration: '',
+            price: '',
 
             courseId: '',
 
@@ -333,6 +340,7 @@ export default{
             this.name = updatedCourse.data.name
             this.category = updatedCourse.data.category
             this.duration = updatedCourse.data.duration
+            this.price = updatedCourse.data.price
             this.courseStatus = updatedCourse.data.status
         },
 

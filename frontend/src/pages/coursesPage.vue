@@ -149,9 +149,16 @@
                             <p class="ml-6 font-bold">{{ course.name }}</p>
 
                             <!-- duration -->
-                             <div class="flex gap-4 mt-6 mb-6">
-                                <img src="/hour.png" alt="hour" width="25px">
-                                <p>{{ course.duration }}</p>
+                             <div class="flex items-center justify-between mr-6">
+                                <div class="flex gap-4 mt-6 mb-6">
+                                    <img src="/hour.png" alt="hour" width="25px">
+                                    <p class="">{{ course.duration }}</p>
+                                </div>
+
+                                <div class="flex gap-2 mt-6 mb-6">
+                                    <img src="/kenya.png" alt="kenya" width="25px">
+                                    <p class="font-bold">{{ course.price }}</p>
+                                </div>
                              </div>
 
                             <!-- Apply now button -->
