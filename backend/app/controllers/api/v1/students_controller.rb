@@ -211,7 +211,10 @@ class Api::V1::StudentsController < ApplicationController
             message: "Student #{student.first_name} #{student.last_name} created account.",
             read: false
           )
-          render json: { message: "Student profile created successfully"}, status: :ok
+          render json: { 
+            message: "Student profile created successfully",
+            student_code: student.student_code
+          }, status: :ok
         else
           render json: { error: "Error creating user", info: student.errors.full_messages }, status: :unprocessable_entity
         end

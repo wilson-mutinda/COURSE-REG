@@ -150,6 +150,21 @@ class Api::V1::UsersController < ApplicationController
         if auth
           access_token=JsonWebToken.encode(user.id, user.flag, 30.minutes.from_now)
           refresh_token=JsonWebToken.encode(user.id, user.flag, 24.hours.from_now)
+
+          student_data = {}
+          if user.flag == 'student'
+            student = Student.find_by(user_id: user.id)
+            if student
+              student_data = {
+                student_id: student.id,
+                student_code: student.student_code,
+                course_name: student.course.name,
+                course_period: student.course.duration,
+                course_price: student.course.price
+              }
+            end
+          end
+
           UserMailer.welcome_email(user).deliver_now
           render json: { 
             message: "Login Successful",
@@ -157,7 +172,9 @@ class Api::V1::UsersController < ApplicationController
             refresh_token: refresh_token,
             flag: user.flag,
             email: user.email,
-            phone: user.phone
+            phone: user.phone,
+            user_id: user.id,
+            student: student_data
           }, status: :ok
         else
           render json: { errors: { password: "Invalid Password!"}}, status: :unauthorized
