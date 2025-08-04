@@ -45,6 +45,10 @@ Rails.application.routes.draw do
       # notifications
       get 'all_notifications/', to: 'notifications#all_notifications'
       patch 'update_notification/:id', to: 'notifications#update_notification'
+
+      # payments
+      post 'create_payment/', to: 'payments#create_payment'
+      post 'mpesa_callback/', to: 'payments#mpesa_callback'
     end
   end
 end
