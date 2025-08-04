@@ -14,16 +14,22 @@
 export default {
     data() {
         return {
-            courseName: ''
+            courseName: '',
+            userId: ''
         }
     },
     mounted() {
+        this.userId = localStorage.getItem('user_id')
+        if (!this.userId) {
+            this.$router.push('/student/info')
+        }
         this.courseName = localStorage.getItem('course_name')
     },
     methods: {
         // goToLogin
         goToLogin(){
-            this.$router.push('/login')
+            this.$router.push('/login');
+            localStorage.removeItem('user_id');
         }
     }
 }

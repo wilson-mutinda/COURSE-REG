@@ -29,14 +29,20 @@
                         <div class="">
                             <p class="text-lg font-semibold">Home</p>
                         </div>
-                        <div class="flex gap-2">
-                            <img src="/user.png" alt="/avatar" width="30px">
-                            <p class="text-gray-600 font-bold text-xl">{{ flag.charAt(0).toUpperCase() + flag.slice(1) }}</p>
-                            <button>
-                                <img src="/arrow-down.png" alt="arrow-down" width="20px"></img>
-                            </button>
+                        <div class="flex items-center justify-between gap-4">
+                            <div class="flex gap-2">
+                                <img src="/user.png" alt="/avatar" width="30px">
+                                <p class="text-gray-600 font-bold text-xl">{{ flag.charAt(0).toUpperCase() + flag.slice(1) }}</p>
+                                <button>
+                                    <img src="/arrow-down.png" alt="arrow-down" width="20px"></img>
+                                </button>
+                            </div>
+                            <div class="">
+                                <button @click="logout" type="button" class="rounded-md bg-purple-500 px-4 py-2 text-white">Logout</button>
+                            </div>
                         </div>
                     </div>
+                    
                  </div>
                  <!-- body -->
                   <div class="">
@@ -49,6 +55,15 @@
 
 <script>
 export default {
+
+    methods: {
+        logout(){
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            this.$router.push('/');
+
+        }
+    },
 
     data() {
         return {

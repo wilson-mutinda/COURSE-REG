@@ -89,6 +89,9 @@
                                     <p><strong>Phone:</strong> {{ phone }}</p>
                                 </div>
                             </div>
+                            <div class="">
+                                <button @click="logout" type="button" class="rounded-md bg-purple-400 px-4 py-2 text-white">Logout</button>
+                            </div>
                      </div>
                  </div>
 
@@ -389,6 +392,13 @@ export default{
     },
 
     methods: {
+
+        // logout
+        logout(){
+            this.$router.push('/');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+        },
 
         // goToStudentPage
         goToStudentPage(){

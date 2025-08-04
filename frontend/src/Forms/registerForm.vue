@@ -72,6 +72,30 @@
 import api from '@/sevices/api';
 
 export default {
+
+    data() {
+        return {
+            first_name: '',
+            last_name: '',
+            email: '',
+            phone: '',
+            password: '',
+            password_confirmation: '',
+
+            errors: {},
+
+            courseId: '',
+
+            showPassword: false
+        }
+    },
+
+    mounted(){
+        const CourseId = localStorage.getItem('course_id')
+        if (!CourseId) {
+            this.$router.push('/')
+        }
+    },
     methods: {
         // goToHome
         goToHome(){
@@ -142,20 +166,5 @@ export default {
         }
     },
 
-
-    data() {
-        return {
-            first_name: '',
-            last_name: '',
-            email: '',
-            phone: '',
-            password: '',
-            password_confirmation: '',
-
-            errors: {},
-
-            showPassword: false
-        }
-    }
 }
 </script>

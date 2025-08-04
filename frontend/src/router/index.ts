@@ -32,7 +32,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('access_token');
-  const publicRoutes = ['/login', '/reset_password', '/create-account'];
+  const publicRoutes = ['/', '/login', '/reset_password', '/create-account', '/courses', '/student/info', '/student/course-reg'];
   const userRole = getUserRole();
 
   // Allow public routes

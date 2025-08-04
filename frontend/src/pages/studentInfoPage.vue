@@ -97,16 +97,19 @@ export default {
         }
     },
     mounted() {
-        this.first_name = localStorage.getItem('first_name');
-        this.last_name = localStorage.getItem('last_name');
-        this.phone = localStorage.getItem('phone');
+        
         this.user_id = localStorage.getItem('user_id');
-
-        this.course_id = localStorage.getItem('course_id')
-
         if (!this.user_id){
             this.$router.push('/create-account')
         }
+
+        this.first_name = localStorage.getItem('first_name');
+        this.last_name = localStorage.getItem('last_name');
+        this.phone = localStorage.getItem('phone');
+
+        this.course_id = localStorage.getItem('course_id')
+
+        
     },
     methods: {
         // clearForm
@@ -145,6 +148,8 @@ export default {
                 } else {
                     this.errors = { general: "Something wet wrong!"}
                 }
+            } finally {
+                localStorage.setItem('user_id', this.user_id)
             }
         }
     }
