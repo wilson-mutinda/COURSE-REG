@@ -137,6 +137,8 @@ export default {
                     }
                 };
                 const response = await api.patch(`add_student_info/${this.user_id}`, payload);
+                const studCode = response.data.student_code
+                localStorage.setItem('student_code', studCode)
                 // alert('Student created successfully!')
                 this.$router.push('/student/course-reg')
                 // clearForm

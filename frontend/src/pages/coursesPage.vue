@@ -240,6 +240,8 @@ export default {
         async goToRegister(course){
             localStorage.setItem('course_id', course.id)
             localStorage.setItem('course_name', course.name)
+            localStorage.setItem('course_price', course.price)
+            localStorage.setItem('course_duration', course.duration)
             this.$router.push('/create-account')
         },
 

@@ -195,13 +195,25 @@ export default{
                 const email = response.data.email;
                 const phone = response.data.phone;
 
+                const studId = response.data.student.student_id;
+                const studCode = response.data.student.student_code;
+                const courseName = response.data.student.course_name;
+                const coursePeriod = response.data.student.course_period;
+                const coursePrice = response.data.student.course_price
+
                 // store in local storage
                 localStorage.setItem('access_token', access_token);
                 localStorage.setItem('refresh_token', refresh_token);
 
                 localStorage.setItem('flag', flag);
                 localStorage.setItem('email', email);
-                localStorage.setItem('phone', phone);                
+                localStorage.setItem('phone', phone); 
+                
+                localStorage.setItem('student_id', studId);
+                localStorage.setItem('student_code', studCode);
+                localStorage.setItem('course_name', courseName);
+                localStorage.setItem('course_period', coursePeriod);
+                localStorage.setItem('course_price', coursePrice);
 
                 this.clearForm();
                 this.errors = {};
