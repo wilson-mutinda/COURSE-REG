@@ -31,7 +31,7 @@ class Api::V1::StudentsController < ApplicationController
         return
       else
         # phone_format
-        phone_format =  /\A(01|07)\d{8}\z/
+        phone_format =  /\A(254(1|7))\d{8}\z/
         unless phone_param.match(phone_format)
           render json: { errors: { phone: "Invalid Phone Format!"}}, status: :unprocessable_entity
           return
@@ -370,7 +370,7 @@ class Api::V1::StudentsController < ApplicationController
         phone_param = user_params[:phone].to_s
         if phone_param.present?
           # phone_format
-          phone_format =  /\A(01|07)\d{8}\z/
+          phone_format =  /\A(254(1|7))\d{8}\z/
           unless phone_param.match(phone_format)
             render json: { errors: { phone: "Invalid Phone Format!"}}, status: :unprocessable_entity
             return

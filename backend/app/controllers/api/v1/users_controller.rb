@@ -32,7 +32,7 @@ class Api::V1::UsersController < ApplicationController
         return
       else
         # phone_format
-        phone_format =  /\A(01|07)\d{8}\z/
+        phone_format =  /\A(254(1|7))\d{8}\z/
         unless phone_param.match(phone_format)
           render json: { errors: { phone: "Invalid Phone Format!"}}, status: :unprocessable_entity
           return
@@ -100,14 +100,30 @@ class Api::V1::UsersController < ApplicationController
     begin
       user = User.find_by(id: params[:id])
       if user
+        updated_params = {}
         # user_flag
         user_flag = user_params[:flag].to_s
         if user_flag.present?
           user_flag = user_flag.to_s.gsub(/\s+/, '').downcase
+          updated_params[:flag] = user_flag
+        end
+
+        # user_phone
+        user_phone = user_params[:phone].to_s
+        if user_phone.present?
+          # phone_format
+          phone_format = /\A(254(1|7))\d{8}\z/
+          unless user_phone.match(phone_format)
+            render json: { errors: { phone: "Invalid Phone Format"}}, status: :unprocessable_entity
+            return
+          else
+            user_phone = user_phone.to_s
+            updated_params[:phone] = user_phone
+          end
         end
 
         # update_user
-        if user.update(flag: user_flag)
+        if user.update(updated_params)
           render json: { message: "User updated"}, status: :ok
         else
           render json: { error: "Error updating user", info: user.errors.full_messages }, status: :unprocessable_entity
