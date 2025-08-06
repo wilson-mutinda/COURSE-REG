@@ -1,5 +1,10 @@
 Welcome <%= @user.email%>.
-You have successfully applied for <%= @user.email %>.
-Course Price : Ksh. <%= @user.email %>
 
-Keep on checking the email for more info.
+<% if @course_name.present? && @course_price.present? %>
+    <p>You have successfully applied for the course: <strong><%= @course_name %></strong>.</p>
+    <p>Course Price: <strong>Ksh. <%= @course_price %></strong></p>
+<% else %>
+    <p>Welcome to our platform. Stay tuned for more updates!</p>
+<% end %>
+
+<p>Keep on checking the email for more info.</p>

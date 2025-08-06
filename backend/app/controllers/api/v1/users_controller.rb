@@ -168,6 +168,9 @@ class Api::V1::UsersController < ApplicationController
           refresh_token=JsonWebToken.encode(user.id, user.flag, 24.hours.from_now)
 
           student_data = {}
+          course_name = nil
+          course_price = nil
+
           if user.flag == 'student'
             student = Student.find_by(user_id: user.id)
             if student
@@ -178,10 +181,14 @@ class Api::V1::UsersController < ApplicationController
                 course_period: student.course.duration,
                 course_price: student.course.price
               }
+
+              course_name = student.course.name
+              course_price = student.course.price
             end
           end
 
-          UserMailer.welcome_email(user).deliver_now
+          UserMailer.welcome_email(user, course_name, course_price).deliver_now
+          
           render json: { 
             message: "Login Successful",
             access_token: access_token,
