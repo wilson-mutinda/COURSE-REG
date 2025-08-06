@@ -71,8 +71,9 @@
                             <p class="font-bold text-lg">Code:</p>
                             <p class="text-lg text-gray-600">{{ studentCode }}</p>
                         </div>
-                        <div class="">
+                        <div class="flex items-center justify-between">
                             <button @click="makePayment" type="button" class="rounded-md bg-green-700 text-white px-4 py-2 mt-2 mb-2">Click to pay ksh. {{ coursePrice }}</button>
+                            <button @click="downloadReceipt" type="button" class="rounded-md bg-pink-500 text-white px-4 py-2 mt-2 mb-2">Print</button>
                         </div>
                     </div>
                   </div>
@@ -83,10 +84,33 @@
 
 <script>
 import api from '@/sevices/api';
+import jsPDF from 'jspdf';
 
 export default {
 
     methods: {
+
+        // downloadReceipt
+        downloadReceipt(){
+            const doc = new jsPDF();
+
+            doc.setFontSize(18);
+            doc.text("E-Learn Course Payment Receipt", 20, 20);
+
+            doc.setFontSize(12);
+            doc.text(`Student Code: ${this.studentCode}`, 20, 40);
+            doc.text(`Email: ${this.email}`, 20, 50);
+            doc.text(`Phone: ${this.phone}`, 20, 60);
+
+            doc.text(`Course Name: ${this.courseName}`, 20, 80);
+            doc.text(`Duration: ${this.courseDuration}`, 20, 90);
+            doc.text(`Cost Paid: ${this.coursePrice}`, 20, 100);
+
+            doc.text(`Status: PAID`, 20, 120);
+            doc.text(`Date: ${new Date().toLocaleString()}`, 20, 130);
+            
+            doc.save(`Receipt-${this.studentCode}.pdf`)
+        },
 
         // makePayment
         async makePayment(){
