@@ -72,7 +72,7 @@
                             <p class="text-lg text-gray-600">{{ studentCode }}</p>
                         </div>
                         <div class="">
-                            <button type="button" class="rounded-md bg-green-700 text-white px-4 py-2 mt-2 mb-2">Click to pay ksh. {{ coursePrice }}</button>
+                            <button @click="makePayment" type="button" class="rounded-md bg-green-700 text-white px-4 py-2 mt-2 mb-2">Click to pay ksh. {{ coursePrice }}</button>
                         </div>
                     </div>
                   </div>
@@ -87,6 +87,25 @@ import api from '@/sevices/api';
 export default {
 
     methods: {
+
+        // makePayment
+        async makePayment(){
+            const payload = {
+                course_name: this.courseName,
+                cost: this.coursePrice,
+                user_phone: this.phone
+            };
+            try {
+                const response = await api.post('create_payment', payload)
+                alert("Response Sent!")
+            } catch (error) {
+                if (error.response && error.response.data && error.response.data.errors) {
+                    this.errors = error.response.data.errors
+                } else {
+                    this.errors = { general: "Something went wrong!"}
+                }
+            }
+        },
 
         clearItems(){
             this.coursePrice = '';
@@ -120,7 +139,9 @@ export default {
 
             email: '',
             phone: '',
-            studentCode: ''
+            studentCode: '',
+
+            errors: {}
         }
     },
 

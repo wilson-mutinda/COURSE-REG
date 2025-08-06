@@ -30,7 +30,7 @@
                         </div>
                         <div class="">
                             <label class="font-semibold" for="phone">Phone</label>
-                            <input @input="clearError('phone')" v-model="phone" class="ring-1 hover:ring-green-400 outline-none p-2 rounded-md w-full" type="tel" name="phone" id="">
+                            <input @input="clearError('phone')" v-model="phone" class="ring-1 hover:ring-green-400 outline-none p-2 rounded-md w-full" type="tel" name="phone" placeholder="254712345678" id="">
                             <p v-if="errors.phone" class="text-red-500 text-sm">{{ errors.phone }}</p>
                         </div>
                     </div>
@@ -162,6 +162,8 @@ export default {
                 } else {
                     this.errors = { general: "Oops!Something went wrong!"}
                 }
+            } finally {
+                localStorage.removeItem('course_id')
             }
         }
     },
